@@ -6,7 +6,7 @@ from PySide2.QtWidgets import QApplication
 from PySide2.QtCore import QFile
 
 def populateCostComboBox(window):
-    functions = ['1', 'n', 'n^2', 'n^3']
+    functions = ['1', 'n', 'n\u00B2', 'n\u00B3']
     speedComboBox = window.speed_cost_function_comboBox
     sightComboBox = window.sight_cost_function_comboBox 
     sizeComboBox = window.size_cost_function_comboBox 
