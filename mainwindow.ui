@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1920</width>
-    <height>1080</height>
+    <width>1800</width>
+    <height>1040</height>
    </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1800</width>
+    <height>1040</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Population Simulator</string>
@@ -20,7 +26,7 @@
    <widget class="QComboBox" name="speed_cost_function_comboBox">
     <property name="geometry">
      <rect>
-      <x>1800</x>
+      <x>1680</x>
       <y>100</y>
       <width>91</width>
       <height>31</height>
@@ -33,7 +39,7 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>1800</x>
+      <x>1670</x>
       <y>50</y>
       <width>91</width>
       <height>31</height>
@@ -60,7 +66,7 @@
    <widget class="QComboBox" name="size_cost_function_comboBox">
     <property name="geometry">
      <rect>
-      <x>1800</x>
+      <x>1680</x>
       <y>200</y>
       <width>91</width>
       <height>31</height>
@@ -70,7 +76,7 @@
    <widget class="QComboBox" name="sight_cost_function_comboBox">
     <property name="geometry">
      <rect>
-      <x>1800</x>
+      <x>1680</x>
       <y>150</y>
       <width>91</width>
       <height>31</height>
@@ -80,7 +86,7 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>1650</x>
+      <x>1530</x>
       <y>50</y>
       <width>91</width>
       <height>31</height>
@@ -107,7 +113,7 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>1650</x>
+      <x>1530</x>
       <y>100</y>
       <width>91</width>
       <height>31</height>
@@ -126,7 +132,7 @@
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>1650</x>
+      <x>1530</x>
       <y>150</y>
       <width>91</width>
       <height>31</height>
@@ -145,7 +151,7 @@
    <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>1650</x>
+      <x>1530</x>
       <y>200</y>
       <width>91</width>
       <height>31</height>
@@ -164,7 +170,7 @@
    <widget class="QCheckBox" name="enable_size_mutation">
     <property name="geometry">
      <rect>
-      <x>1760</x>
+      <x>1640</x>
       <y>200</y>
       <width>21</width>
       <height>23</height>
@@ -180,7 +186,7 @@
    <widget class="QCheckBox" name="enable_sight_mutation">
     <property name="geometry">
      <rect>
-      <x>1760</x>
+      <x>1640</x>
       <y>150</y>
       <width>21</width>
       <height>23</height>
@@ -196,7 +202,7 @@
    <widget class="QCheckBox" name="enable_speed_mutation">
     <property name="geometry">
      <rect>
-      <x>1760</x>
+      <x>1640</x>
       <y>100</y>
       <width>21</width>
       <height>23</height>
@@ -212,8 +218,8 @@
    <widget class="QLCDNumber" name="generation_number_display">
     <property name="geometry">
      <rect>
-      <x>1510</x>
-      <y>20</y>
+      <x>1430</x>
+      <y>10</y>
       <width>71</width>
       <height>31</height>
      </rect>
@@ -222,8 +228,8 @@
    <widget class="QLCDNumber" name="creature_number_display">
     <property name="geometry">
      <rect>
-      <x>1510</x>
-      <y>60</y>
+      <x>1430</x>
+      <y>50</y>
       <width>71</width>
       <height>31</height>
      </rect>
@@ -232,8 +238,8 @@
    <widget class="QLabel" name="label_6">
     <property name="geometry">
      <rect>
-      <x>1370</x>
-      <y>20</y>
+      <x>1290</x>
+      <y>10</y>
       <width>121</width>
       <height>31</height>
      </rect>
@@ -256,8 +262,8 @@
    <widget class="QLabel" name="label_7">
     <property name="geometry">
      <rect>
-      <x>1370</x>
-      <y>60</y>
+      <x>1290</x>
+      <y>50</y>
       <width>121</width>
       <height>31</height>
      </rect>
@@ -280,7 +286,7 @@
    <widget class="QLabel" name="label_8">
     <property name="geometry">
      <rect>
-      <x>1670</x>
+      <x>1550</x>
       <y>10</y>
       <width>191</width>
       <height>31</height>
@@ -304,7 +310,7 @@
    <widget class="QSlider" name="food_slideer">
     <property name="geometry">
      <rect>
-      <x>1410</x>
+      <x>1300</x>
       <y>370</y>
       <width>471</width>
       <height>20</height>
@@ -323,7 +329,7 @@
    <widget class="QLabel" name="label_9">
     <property name="geometry">
      <rect>
-      <x>1550</x>
+      <x>1440</x>
       <y>330</y>
       <width>191</width>
       <height>31</height>
@@ -347,7 +353,7 @@
    <widget class="QLabel" name="label_10">
     <property name="geometry">
      <rect>
-      <x>1400</x>
+      <x>1300</x>
       <y>400</y>
       <width>31</width>
       <height>21</height>
@@ -363,7 +369,7 @@
    <widget class="QLabel" name="label_11">
     <property name="geometry">
      <rect>
-      <x>1860</x>
+      <x>1750</x>
       <y>400</y>
       <width>31</width>
       <height>21</height>
@@ -379,7 +385,7 @@
    <widget class="QPushButton" name="begin_sumulation_button">
     <property name="geometry">
      <rect>
-      <x>1580</x>
+      <x>1480</x>
       <y>470</y>
       <width>131</width>
       <height>51</height>
@@ -392,7 +398,7 @@
    <widget class="QPushButton" name="pause_simulation_button">
     <property name="geometry">
      <rect>
-      <x>1720</x>
+      <x>1620</x>
       <y>470</y>
       <width>131</width>
       <height>51</height>
@@ -405,7 +411,7 @@
    <widget class="QPushButton" name="jump_to_next_step_button">
     <property name="geometry">
      <rect>
-      <x>1440</x>
+      <x>1340</x>
       <y>470</y>
       <width>131</width>
       <height>51</height>
@@ -420,8 +426,8 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>1351</width>
-      <height>1041</height>
+      <width>1271</width>
+      <height>1001</height>
      </rect>
     </property>
    </widget>
@@ -431,7 +437,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1920</width>
+     <width>1800</width>
      <height>22</height>
     </rect>
    </property>

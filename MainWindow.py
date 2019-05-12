@@ -45,6 +45,7 @@ if __name__ == "__main__":
     #get simulation 
     simulationView = SimulationView(window.simulation_window)
 
+    window.setFixedSize(window.size())
     window.show()
 
     sys.exit(app.exec_())
