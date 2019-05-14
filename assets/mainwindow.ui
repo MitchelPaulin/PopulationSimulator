@@ -382,7 +382,7 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QPushButton" name="begin_sumulation_button">
+   <widget class="QPushButton" name="begin_simulation_button">
     <property name="geometry">
      <rect>
       <x>1480</x>

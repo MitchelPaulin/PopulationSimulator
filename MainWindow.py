@@ -6,8 +6,9 @@ import qdarkstyle
 from SimulationView import SimulationView
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QApplication
-from PySide2.QtCore import QFile
+from PySide2.QtCore import QFile, QObject
 
+#populate and set the initial values for the QComboBoxes
 def populateCostComboBox(window):
     functions = ['1', 'n', 'n\u00B2', 'n\u00B3']
     speedComboBox = window.speed_cost_function_comboBox
@@ -25,6 +26,22 @@ def populateCostComboBox(window):
     sizeComboBox.setCurrentIndex(3)
 
 
+def InitUI():
+
+    #load ui file 
+    ui_file = QFile("assets/mainwindow.ui")
+    ui_file.open(QFile.ReadOnly)
+    loader = QUiLoader()
+    window = loader.load(ui_file)
+    ui_file.close()
+
+    #initialize values for drop downs
+    populateCostComboBox(window)
+
+    window.setFixedSize(window.size())
+    window.show()
+    return window 
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
@@ -32,20 +49,10 @@ if __name__ == "__main__":
     # setup stylesheet
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyside())
 
-    #load ui file 
-    ui_file = QFile("mainwindow.ui")
-    ui_file.open(QFile.ReadOnly)
-    loader = QUiLoader()
-    window = loader.load(ui_file)
-    ui_file.close()
+    window = InitUI()
 
-    #initialize values
-    populateCostComboBox(window)
+    #Create a new simulation 
+    simulationView = SimulationView(window)
 
-    #get simulation 
-    simulationView = SimulationView(window.simulation_window)
-
-    window.setFixedSize(window.size())
-    window.show()
 
     sys.exit(app.exec_())
