@@ -14,4 +14,4 @@ First install dependenceis (install-dependences.sh)
 python3 MainWindow.py 
 
 # Thanks To 
-InkMamoth https://opengameart.org/users/inkmammoth
+InkMammoth https://opengameart.org/users/inkmammoth
