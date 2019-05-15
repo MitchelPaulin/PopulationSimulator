@@ -6,34 +6,42 @@ from random import randint
 import Simulation
 from Food import Food 
 from Creature import Creature
+from Simulation import Simulation
 
 class SimulationView():
 
     graphicsScene = None 
+    simWindow = None
+    simulation = None
     isSimulating = False 
     beginSimulationButton = None 
+    cancelSimulationButton = None 
     foodSlider = None 
-    food = None 
-    creatures = None
-    BUFFER = 10 #ensure we don't drop items too close to the extremes of the scene
+    BUFFER = 10 #ensure we don't drop items too close to the extremes of the scene 
 
 
     def __init__(self, mainWindow):
 
-        self.food = []
-        self.creatures = []
+        self.simulation = Simulation(mainWindow)
 
-        #create new scene 
-        simWindow = mainWindow.simulation_window
-        self.graphicsScene = QGraphicsScene()
-        self.graphicsScene.setSceneRect(simWindow.x(), simWindow.y(), simWindow.width() - self.BUFFER, simWindow.height() - self.BUFFER)
-        simWindow.setScene(self.graphicsScene)
+        self.simWindow = mainWindow.simulation_window
+        self.createGraphicsScene()
 
-        #connect buttons to functions 
+        #connect QWidgets to functions 
         self.beginSimulationButton = mainWindow.begin_simulation_button
         self.beginSimulationButton.clicked.connect(self.simulate)
         
+        self.cancelSimulationButton = mainWindow.cancel_simulation_button
+        self.cancelSimulationButton.clicked.connect(self.cancelSimulation)
+
         self.foodSlider = mainWindow.food_slider
+
+    def createGraphicsScene(self):
+        #create new scene 
+        self.graphicsScene = QGraphicsScene()
+        self.graphicsScene.setSceneRect(self.simWindow.x(), self.simWindow.y(), self.simWindow.width() - self.BUFFER, self.simWindow.height() - self.BUFFER)
+        self.simWindow.setScene(self.graphicsScene)
+
     
     #call the correct function based on the simulation state
     def simulate(self):
@@ -49,7 +57,7 @@ class SimulationView():
             food_x = randint(self.BUFFER, self.graphicsScene.width() - self.BUFFER)
             food_y = randint(self.BUFFER, self.graphicsScene.height() - self.BUFFER)
             newFood = Food(food_x,food_y)
-            self.food.append(newFood)
+            self.simulation.addFood(newFood)
             self.graphicsScene.addItem(newFood.pixmap)
             newFood.pixmap.setPos(food_x, food_y)
 
@@ -68,3 +76,8 @@ class SimulationView():
     #simulate to next generation only 
     def nextGeneration(self):
         pass 
+
+    #clear sim window
+    def cancelSimulation(self):
+        self.createGraphicsScene()
+        self.isSimulating = False 

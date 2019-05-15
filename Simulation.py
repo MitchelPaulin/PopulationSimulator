@@ -3,7 +3,13 @@
 
 import Food, Creature 
 
-class Simulaton:
+class Simulation:
+
+    food = []
+    creatures = []
 
     def __init__(self, mainWindow):
         pass  
+
+    def addFood(self, food):
+        self.food.append(food)
