@@ -12,6 +12,7 @@ class SimulationView():
     graphicsScene = None 
     isSimulating = False 
     beginSimulationButton = None 
+    foodSlider = None 
     food = None 
     creatures = None
     BUFFER = 10 #ensure we don't drop items too close to the extremes of the scene
@@ -25,12 +26,14 @@ class SimulationView():
         #create new scene 
         simWindow = mainWindow.simulation_window
         self.graphicsScene = QGraphicsScene()
-        self.graphicsScene.setSceneRect(simWindow.x(), simWindow.y(), simWindow.width() - 10, simWindow.height() - 10)
+        self.graphicsScene.setSceneRect(simWindow.x(), simWindow.y(), simWindow.width() - self.BUFFER, simWindow.height() - self.BUFFER)
         simWindow.setScene(self.graphicsScene)
 
         #connect buttons to functions 
         self.beginSimulationButton = mainWindow.begin_simulation_button
         self.beginSimulationButton.clicked.connect(self.simulate)
+        
+        self.foodSlider = mainWindow.food_slider
     
     #call the correct function based on the simulation state
     def simulate(self):
@@ -52,7 +55,7 @@ class SimulationView():
 
     #start the simulation 
     def start(self):
-        self.drawFood(10) 
+        self.drawFood(self.foodSlider.sliderPosition()) 
     
     #pause the simulation
     def pause(self):

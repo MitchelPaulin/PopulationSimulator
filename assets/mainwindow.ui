@@ -307,7 +307,7 @@
      <number>0</number>
     </property>
    </widget>
-   <widget class="QSlider" name="food_slideer">
+   <widget class="QSlider" name="food_slider">
     <property name="geometry">
      <rect>
       <x>1300</x>
