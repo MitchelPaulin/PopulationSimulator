@@ -408,7 +408,7 @@
      <string>Pause Simluation</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="jump_to_next_step_button">
+   <widget class="QPushButton" name="jump_to_next_gen_button">
     <property name="geometry">
      <rect>
       <x>1340</x>
@@ -417,8 +417,11 @@
       <height>51</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>Fast forward by one generation</string>
+    </property>
     <property name="text">
-     <string>Jump One Step</string>
+     <string>Jump Next Gen</string>
     </property>
    </widget>
    <widget class="QGraphicsView" name="simulation_window">
@@ -429,6 +432,32 @@
       <width>1271</width>
       <height>1001</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="cancel_simulation_button">
+    <property name="geometry">
+     <rect>
+      <x>1410</x>
+      <y>530</y>
+      <width>131</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Cancel Simulation</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="placeholder_button">
+    <property name="geometry">
+     <rect>
+      <x>1550</x>
+      <y>530</y>
+      <width>131</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>place holder</string>
     </property>
    </widget>
   </widget>
