@@ -73,8 +73,8 @@ class SimulationView():
 
         self.foodSlider = mainWindow.food_slider
 
-    def createGraphicsScene(self):
-        #create new scene 
+    #create new graphics scene inside the graphics view and set size 
+    def createGraphicsScene(self): 
         self.graphicsScene = QGraphicsScene()
         self.graphicsScene.setSceneRect(self.simWindow.x(), self.simWindow.y(), self.simWindow.width() - self.BUFFER, self.simWindow.height() - self.BUFFER)
         self.simWindow.setScene(self.graphicsScene)
@@ -91,9 +91,10 @@ class SimulationView():
 
     #call the correct function based on the simulation state
     def simulate(self):
-        self.start()
-        self.isSimulating = True 
-        self.simulationStarted = True
+        if not self.isSimulating:
+            self.start()
+            self.isSimulating = True 
+            self.simulationStarted = True
 
     #start the simulation 
     def start(self):
@@ -110,8 +111,10 @@ class SimulationView():
 
         if self.isSimulating:
             self.frameRenderer.pause()
+            self.toggleSimulationButton.setText("Play Simulation")
         else:
             self.frameRenderer.start()
+            self.toggleSimulationButton.setText("Pause Simulation")
 
         self.isSimulating = not self.isSimulating
 

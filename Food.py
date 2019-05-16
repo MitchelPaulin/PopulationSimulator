@@ -9,7 +9,7 @@ class Food(QGraphicsPixmapItem):
     xPos = None 
     yPos = None 
     nutritionalValue = 1 
-    foodImages = ['Cherry.png', 'Watermelon.png', 'Pear.png']
+    foodImages = ('Cherry.png', 'Watermelon.png', 'Pear.png') #tuple so editing cannot occur 
 
     def __init__(self, xPos, yPos, image=None):
         self.xPos = xPos
