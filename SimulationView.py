@@ -24,11 +24,11 @@ class FrameRenderer():
 
     #Render one time step 
     def nextFrame(self):
-        for food in self.simulation.food:
-            food.xPos = food.xPos + randint(-1,1)
-            food.yPos = food.yPos + randint(-1,1)
-            if food.pixmap:
-                food.pixmap.setPos(food.xPos, food.yPos)
+        if self.simulation:
+            for food in self.simulation.food:
+                food.xPos = food.xPos + randint(-1,1)
+                food.yPos = food.yPos + randint(-1,1)
+                food.setPos(food.xPos, food.yPos)
     
     def start(self):
         self.timer.start()
@@ -59,6 +59,8 @@ class SimulationView():
 
         self.simWindow = mainWindow.simulation_window
 
+        self.createGraphicsScene()
+
         #connect QWidgets to functions 
         self.beginSimulationButton = mainWindow.begin_simulation_button
         self.beginSimulationButton.clicked.connect(self.simulate)
@@ -84,8 +86,8 @@ class SimulationView():
             food_y = randint(self.BUFFER, self.graphicsScene.height() - self.BUFFER)
             newFood = Food(food_x,food_y)
             self.simulation.addFood(newFood)
-            self.graphicsScene.addItem(newFood.pixmap)
-            newFood.pixmap.setPos(food_x, food_y)
+            self.graphicsScene.addItem(newFood)
+            newFood.setPos(food_x, food_y)
 
     #call the correct function based on the simulation state
     def simulate(self):
@@ -95,7 +97,6 @@ class SimulationView():
 
     #start the simulation 
     def start(self):
-        self.createGraphicsScene()
         self.simulation = Simulation(self.mainWindow)
         self.frameRenderer = FrameRenderer(self.simulation, self.graphicsScene)
         self.drawFood(self.foodSlider.sliderPosition())
@@ -116,9 +117,7 @@ class SimulationView():
 
     #clear sim window
     def cancelSimulation(self):
-        self.frameRenderer = None
-        self.simulation = None
-        self.graphicsScene = None
-        self.createGraphicsScene()
+        for item in self.graphicsScene.items():
+            self.graphicsScene.removeItem(item)
         self.isSimulating = False 
         self.simulationStarted = False 
