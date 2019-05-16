@@ -1,7 +1,8 @@
 #File Food.py 
 #Holds a food instance 
 
-from PySide2.QtWidgets import QGraphicsPixmapItem
+from PyQt5.QtWidgets import QGraphicsPixmapItem
+from PyQt5.QtGui import QPixmap
 import random
 
 class Food():
@@ -15,7 +16,7 @@ class Food():
         self.xPos = xPos
         self.yPos = yPos 
         if not image:
-            self.pixmap = QGraphicsPixmapItem('assets/'+random.choice(self.foodImages))
+            self.pixmap = QGraphicsPixmapItem(QPixmap('assets/'+random.choice(self.foodImages)))
         else:
             self.pixmap = QGraphicsPixmapItem(image)
 

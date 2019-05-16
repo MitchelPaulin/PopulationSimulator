@@ -1,15 +1,15 @@
 # PopulationSimulator
-A simulator meant to see how populations evolve over time due to natural occuring mutations 
+A simulator meant to see how populations evolve over time due to natural occurring mutations 
 
 # Dependecies 
-Uses python3 and pip for convience 
+Uses python3 and pip for convenience 
 
-PyQt5, PySide2 for graphics 
+PyQt5 for Graphics 
 
-Recommended that you use the optional dark theme qdarkstyle 
+Recommended that you use the optional dark theme qdarkstyle, PySide2 is required because of this theme 
 
 # To Run 
-First install dependenceis (install-dependences.sh) 
+First install dependencies (install-dependencies.sh) 
 
 python3 MainWindow.py 
 

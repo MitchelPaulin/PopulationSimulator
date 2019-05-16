@@ -395,7 +395,7 @@
      <string>Begin Simulation</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pause_simulation_button">
+   <widget class="QPushButton" name="toggle_simulation_button">
     <property name="geometry">
      <rect>
       <x>1620</x>

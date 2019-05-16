@@ -1,12 +1,21 @@
+#!/usr/bin/python3
 #File MainWindow.py
 #Driver file for the application 
 
 import sys
 import qdarkstyle
 from SimulationView import SimulationView
-from PySide2.QtUiTools import QUiLoader
-from PySide2.QtWidgets import QApplication
-from PySide2.QtCore import QFile, QObject
+from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtCore import QFile
+#from PyQt5.QtGui import QMainWindow
+from PyQt5.uic import loadUi
+
+class MainWindow(QMainWindow):
+    
+    def __init__(self):
+        super(MainWindow, self).__init__()
+        loadUi("assets/mainwindow.ui", self)
+        self.show()
 
 #populate and set the initial values for the QComboBoxes
 def populateCostComboBox(window):
@@ -26,33 +35,15 @@ def populateCostComboBox(window):
     sizeComboBox.setCurrentIndex(3)
 
 
-def InitUI():
-
-    #load ui file 
-    ui_file = QFile("assets/mainwindow.ui")
-    ui_file.open(QFile.ReadOnly)
-    loader = QUiLoader()
-    window = loader.load(ui_file)
-    ui_file.close()
-
-    #initialize values for drop downs
-    populateCostComboBox(window)
-
-    window.setFixedSize(window.size())
-    window.show()
-    return window 
-
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     # setup stylesheet
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyside())
 
-    window = InitUI()
+    window = MainWindow()
 
     #Create a new simulation 
     simulationView = SimulationView(window)
-
 
     sys.exit(app.exec_())
