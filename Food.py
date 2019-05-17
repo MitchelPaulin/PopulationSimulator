@@ -6,14 +6,10 @@ from PyQt5.QtGui import QPixmap
 import random
 
 class Food(QGraphicsPixmapItem):
-    xPos = None 
-    yPos = None 
     nutritionalValue = 1 
     foodImages = ('Cherry.png', 'Watermelon.png', 'Pear.png') #tuple so editing cannot occur 
 
-    def __init__(self, xPos, yPos, image=None):
-        self.xPos = xPos
-        self.yPos = yPos 
+    def __init__(self, image=None): 
         if not image:
             super().__init__(QPixmap('assets/'+random.choice(self.foodImages)))
         else:

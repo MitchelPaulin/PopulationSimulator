@@ -13,3 +13,6 @@ class Simulation:
 
     def addFood(self, food):
         self.food.append(food)
+    
+    def addCreature(self, creature):
+        self.creatures.append(creature)

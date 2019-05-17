@@ -25,10 +25,7 @@ class FrameRenderer():
     #Render one time step 
     def nextFrame(self):
         if self.simulation:
-            for food in self.simulation.food:
-                food.xPos = food.xPos + randint(-1,1)
-                food.yPos = food.yPos + randint(-1,1)
-                food.setPos(food.xPos, food.yPos)
+            pass
     
     def start(self):
         self.timer.start()
@@ -50,7 +47,7 @@ class SimulationView():
     cancelSimulationButton = None 
     toggleSimulationButton = None 
     foodSlider = None 
-    BUFFER = 10 #ensure we don't drop items too close to the extremes of the scene 
+    BUFFER = 20 #ensure we don't drop items too close to the extremes of the scene 
 
 
     def __init__(self, mainWindow):
@@ -80,14 +77,35 @@ class SimulationView():
         self.simWindow.setScene(self.graphicsScene)
 
     #draw the food items to the screen and create new food objects 
-    def drawFood(self, foodAmount):
+    def createFood(self, foodAmount):
         for _ in range(foodAmount):
             food_x = randint(self.BUFFER, self.graphicsScene.width() - self.BUFFER)
             food_y = randint(self.BUFFER, self.graphicsScene.height() - self.BUFFER)
-            newFood = Food(food_x,food_y)
+            newFood = Food()
             self.simulation.addFood(newFood)
             self.graphicsScene.addItem(newFood)
             newFood.setPos(food_x, food_y)
+
+    #retrun an (x,y) position along the perimeter of the scene 
+    def randomPerimeterPosition(self):
+        direction = randint(1,4)
+        if direction == 1: #North
+            return (randint(self.BUFFER, self.graphicsScene.width() - self.BUFFER), self.graphicsScene.height() - self.BUFFER)
+        if direction == 2: #East
+            return (self.graphicsScene.width() - self.BUFFER, randint(self.BUFFER, self.graphicsScene.height() - self.BUFFER))
+        if direction == 3: #South
+            return(randint(self.BUFFER, self.graphicsScene.width() - self.BUFFER), 0)
+        else: #West
+            return(0, randint(self.BUFFER, self.graphicsScene.height() - self.BUFFER))
+
+    #draw the creature items to the screen and create new creature objects 
+    def createCreatures(self, creatureAmount=10):
+        for _ in range(creatureAmount):
+            newPos = self.randomPerimeterPosition()
+            newCreature = Creature()
+            self.simulation.addCreature(newCreature)
+            self.graphicsScene.addItem(newCreature)
+            newCreature.setPos(newPos[0], newPos[1])
 
     #call the correct function based on the simulation state
     def simulate(self):
@@ -100,7 +118,8 @@ class SimulationView():
     def start(self):
         self.simulation = Simulation(self.mainWindow)
         self.frameRenderer = FrameRenderer(self.simulation, self.graphicsScene)
-        self.drawFood(self.foodSlider.sliderPosition())
+        self.createFood(self.foodSlider.sliderPosition())
+        self.createCreatures()
         self.frameRenderer.start() 
     
     #toggle whether or not we are current simulating 
