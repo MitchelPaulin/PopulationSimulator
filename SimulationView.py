@@ -33,7 +33,7 @@ class FrameRenderer():
         for creature in self.simulation.creatures:
             closestFood = creature.findClosestFood(self.simulation.food)
             creature.moveTowardsFood(closestFood)
-            if closeEnough(creature, closestFood, 1):
+            if closeEnough(creature, closestFood, creature.speed):
                 creature.eat()
                 logging.info("I have been eaten! " + str(closestFood))
                 self.scene.removeItem(closestFood)
