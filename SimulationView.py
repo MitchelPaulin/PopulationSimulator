@@ -26,7 +26,7 @@ class FrameRenderer():
         self.scene = scene
         self.timer = QTimer()
         self.timer.timeout.connect(self.nextFrame)
-        self.timer.setInterval(1000/100)# 60 Frames per second  
+        self.timer.setInterval(1000/30)# 60 Frames per second  
 
     def nextFrame(self):
         """Render one time step"""
@@ -158,13 +158,16 @@ class SimulationView():
         issue with the C++ bindings not causing the deconstructor to always
         run so we need to delete the assets outself
         """
-        for food in self.simulation.food:
+        foodList = list(self.simulation.food)
+        for food in foodList:
             self.simulation.food.remove(food)
 
-        for creature in self.simulation.creatures:
+        creatureList = list(self.simulation.creatures)
+        for creature in creatureList:
             self.simulation.creatures.remove(creature)
 
-        for item in self.graphicsScene.items():
+        itemsToRemove = list(self.graphicsScene.items())
+        for item in itemsToRemove:
             self.graphicsScene.removeItem(item)
 
     def cancelSimulation(self):

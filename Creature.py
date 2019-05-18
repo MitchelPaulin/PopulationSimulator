@@ -13,7 +13,7 @@ class Creature(QGraphicsPixmapItem):
     Each creature can move, reproduce and mutate 
     """
 
-    speed = 1
+    speed = 2
     eatenFood = 0
 
     def __init__(self, image=None):
