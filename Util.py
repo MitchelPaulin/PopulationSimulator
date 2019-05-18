@@ -13,6 +13,9 @@ def objectDistance(object1, object2):
 #with the additional restriction of only moving distance 
 def movementDelta(source, destination, distance):
     totalDistance = objectDistance(source, destination)
+    # you are on the object, no movement required 
+    if totalDistance == 0:
+        return (0,0)
     fractionOfTotalDistance = distance / totalDistance
     deltaX = (destination.x() - source.x()) * fractionOfTotalDistance
     deltaY = (destination.y() - source.y()) * fractionOfTotalDistance
