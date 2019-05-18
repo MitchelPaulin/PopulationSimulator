@@ -24,8 +24,9 @@ class FrameRenderer():
 
     #Render one time step 
     def nextFrame(self):
-        if self.simulation:
-            pass
+        for creature in self.simulation.creatures:
+            closestFood = creature.findClosestFood(self.simulation.food)
+            creature.moveTowardsFood(closestFood)
     
     def start(self):
         self.timer.start()
