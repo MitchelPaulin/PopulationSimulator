@@ -14,9 +14,10 @@ class Creature(QGraphicsPixmapItem):
     Each creature can move, reproduce and mutate 
     """
 
-    speed = 2
+    speed = 20
     eatenFood = 0
-    energy = 1000 # how far a creature can move before it needs to stop
+    currentEnergy = 1000 # how far a creature can move before it needs to stop
+    CREATURE_STARTING_ENERGY = 1000
     MUTATION_RANGE = 1 # each attribute has a change to mutate up or down one on mutation 
 
     def __init__(self, image=None):
@@ -48,11 +49,18 @@ class Creature(QGraphicsPixmapItem):
 
     def expendEnergy(self, deltaX, deltaY, simulation):
         """Expend the amount of energy equal to the distance moved taking into account attributes"""
-        self.energy -= sqrt(pow(deltaX,2) + pow(deltaY,2))
+        self.currentEnergy -= sqrt(pow(deltaX,2) + pow(deltaY,2))
 
     def eat(self):
         self.eatenFood += 1
         logging.info("I have eaten " + str(self.eatenFood) + " " + str(self))
 
-    def emptyStomach(self):
+    def resetState(self):
+        """Set a creature back to its starting state"""
         self.eatenFood = 0
+        self.currentEnergy = self.CREATURE_STARTING_ENERGY
+
+    def reproduce(self):
+        """Produces a creature with the same attributes as the parent
+           with a chance for traits to mutate"""
+        logging.info("Creature " + str(self) + " has reproduced")

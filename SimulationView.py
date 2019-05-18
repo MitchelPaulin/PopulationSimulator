@@ -11,21 +11,18 @@ from Creature import Creature
 from Simulation import Simulation
 from Util import closeEnough
 
-class FrameRenderer():
+class SimulationLoop():
     """
     A helper class for SimulationView which is responsible for 
-    rendering the frames of the animation 
+    rendering the main simulation loop of the actors and managing 
+    generation timing 
     """
 
-    simulation = None 
-    mainWindow = None 
-    scene = None 
+    simulationView = None 
     timer = None 
 
-    def __init__(self, simulation, mainWindow, scene):
-        self.simulation = simulation
-        self.mainWindow = mainWindow
-        self.scene = scene
+    def __init__(self, simulationView):
+        self.simulationView = simulationView
         self.timer = QTimer()
         self.timer.timeout.connect(self.nextTimeStep)
         self.timer.setInterval(1000/30)# 60 Frames per second  
@@ -36,22 +33,33 @@ class FrameRenderer():
 
     def nextFrame(self):
         """Render one time step"""
-        for creature in self.simulation.creatures:
-            if creature.energy <= 0:
-                continue
-            closestFood = creature.findClosestFood(self.simulation.food)
-            creature.moveTowardsFood(closestFood, self.simulation)
-            if closeEnough(creature, closestFood, creature.speed):
-                creature.eat()
-                logging.info("I have been eaten! " + str(closestFood))
-                self.scene.removeItem(closestFood)
-                self.simulation.food.remove(closestFood)      
+        creatureMoved = False 
+        for creature in self.simulationView.simulation.creatures:
+            if creature.currentEnergy <= 0:
+                continue 
+            closestFood = creature.findClosestFood(self.simulationView.simulation.food)
+            if closestFood:
+                creature.moveTowardsFood(closestFood, self.simulationView.simulation)
+                creatureMoved = True
+                if closeEnough(creature, closestFood, creature.speed):
+                    creature.eat()
+                    logging.info("I have been eaten " + str(closestFood))
+                    self.simulationView.graphicsScene.removeItem(closestFood)
+                    self.simulationView.simulation.food.remove(closestFood)      
+        if not creatureMoved:
+            self.pause()
+            self.nextGeneration() 
 
     def updateLcds(self):
         """Update the LCD displays in the scene"""
-        self.mainWindow.generation_number_display.display(self.simulation.generation)
-        self.mainWindow.creature_number_display.display(self.simulation.populationSize())
-        
+        self.simulationView.mainWindow.generation_number_display.display(self.simulationView.simulation.generation)
+        self.simulationView.mainWindow.creature_number_display.display(self.simulationView.simulation.populationSize())
+
+    def nextGeneration(self): 
+        logging.info("This generation had ended ")
+        self.pause()
+        self.simulationView.goToNextGeneration()
+        self.start()
     
     def start(self):
         self.timer.start()
@@ -63,7 +71,7 @@ class FrameRenderer():
 class SimulationView():
     """
     Main driver class responsible for handling UI interactions 
-    and setting up simulations.
+    and setting up,tearing down and reseting simulations.
     """
 
     mainWindow = None
@@ -72,7 +80,7 @@ class SimulationView():
     simulation = None
     isSimulating = False  
     simulationStarted = False 
-    frameRenderer = None 
+    simulationLoop = None 
     beginSimulationButton = None 
     cancelSimulationButton = None 
     toggleSimulationButton = None 
@@ -145,10 +153,10 @@ class SimulationView():
         """Start the simulation"""
         self.createGraphicsScene()
         self.simulation = Simulation(self.mainWindow)
-        self.frameRenderer = FrameRenderer(self.simulation, self.mainWindow, self.graphicsScene)
+        self.simulationLoop = SimulationLoop(self)
         self.createFood(self.mainWindow.food_slider.sliderPosition())
         self.createCreatures()
-        self.frameRenderer.start() 
+        self.simulationLoop.start() 
      
     def toggleSimulation(self):
         """Toggle whether or not we are current simulating"""
@@ -156,10 +164,10 @@ class SimulationView():
             return 
 
         if self.isSimulating:
-            self.frameRenderer.pause()
+            self.simulationLoop.pause()
             self.toggleSimulationButton.setText("Play Simulation")
         else:
-            self.frameRenderer.start()
+            self.simulationLoop.start()
             self.toggleSimulationButton.setText("Pause Simulation")
 
         self.isSimulating = not self.isSimulating
@@ -185,6 +193,26 @@ class SimulationView():
 
     def cancelSimulation(self):
         """Clear the simulation scene and reset variables"""
+        self.simulationLoop.pause()
         self.deleteAssets()
         self.isSimulating = False 
         self.simulationStarted = False 
+
+    def goToNextGeneration(self):
+        """Set the simulation back to a starting state
+           and deal with setting up next generation"""
+        self.createFood(self.mainWindow.food_slider.sliderPosition())
+        self.simulation.generation += 1
+        for creature in self.simulation.creatures:
+            if creature.eatenFood >= 1: # creature survived to next generation 
+                newPos = self.randomPerimeterPosition()
+                creature.setPos(newPos[0], newPos[1])
+                if creature.eatenFood >= 2: #create survived with enough food to reproduce  
+                    creature.reproduce() 
+            else: #creature did not find enough food
+                logging.info("Create " + str(creature) + " has perished")
+                self.simulation.creatures.remove(creature)
+                self.graphicsScene.removeItem(creature)
+                continue 
+
+            creature.resetState()
