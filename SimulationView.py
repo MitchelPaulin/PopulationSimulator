@@ -137,15 +137,22 @@ class SimulationView():
             self.toggleSimulationButton.setText("Pause Simulation")
 
         self.isSimulating = not self.isSimulating
+    
+    #go through the scene/objects and delete assets 
+    #normally you shouldn't have to do this but there seems to be an
+    #issue with the C++ bindings not causing the deconstructor to always run 
+    def cleanAssets(self):
+        for food in self.simulation.food:
+            self.simulation.food.remove(food)
+
+        for creature in self.simulation.creatures:
+            self.simulation.creatures.remove(creature)
+
+        for item in self.graphicsScene.items():
+            self.graphicsScene.removeItem(item)
 
     #clear sim window
     def cancelSimulation(self):
-        # if items are not explicitly removed/deleted they will stick around, likely some issues with the PyQt bindings
-        # not always calling the destructor properly 
-        for item in self.graphicsScene.items():
-            self.graphicsScene.removeItem(item)
-        for food in self.simulation.food:
-            self.simulation.food.remove(food)
-            
+        self.cleanAssets()
         self.isSimulating = False 
         self.simulationStarted = False 
