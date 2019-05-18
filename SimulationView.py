@@ -35,7 +35,7 @@ class SimulationLoop():
         """Render one time step"""
         creatureMoved = False 
         for creature in self.simulationView.simulation.creatures:
-            if creature.currentEnergy <= 0:
+            if creature.currentEnergy <= 0 or creature.eatenFood >= 2:
                 continue 
             closestFood = creature.findClosestFood(self.simulationView.simulation.food)
             if closestFood:
@@ -204,6 +204,12 @@ class SimulationView():
     def goToNextGeneration(self):
         """Set the simulation back to a starting state
            and deal with setting up next generation"""
+        #delete all remaining food 
+        foodList = list(self.simulation.food)
+        for food in foodList:
+            self.simulation.food.remove(food)
+            self.graphicsScene.removeItem(food)
+
         self.createFood(self.mainWindow.food_slider.sliderPosition())
         self.simulation.generation += 1
         creatureList = list(self.simulation.creatures)

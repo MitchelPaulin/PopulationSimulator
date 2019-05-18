@@ -6,7 +6,7 @@ from PyQt5.QtGui import QPixmap
 from Util import objectDistance, movementDelta
 from sys import maxsize
 from math import sqrt
-from random import randint
+from random import uniform
 import logging 
 
 class Creature(QGraphicsPixmapItem): 
@@ -17,13 +17,14 @@ class Creature(QGraphicsPixmapItem):
 
     speed = 1
     eatenFood = 0
-    currentEnergy = 1000 # how far a creature can move before it needs to stop
-    CREATURE_STARTING_ENERGY = 1000
+    currentEnergy = 2500 # how far a creature can move before it needs to stop
+    CREATURE_STARTING_ENERGY = 2500
     MUTATION_RANGE = 1 # each attribute has a change to mutate up or down one on mutation 
 
     def __init__(self, parent=None):
         if parent:
-            self.speed += randint(parent.speed - self.MUTATION_RANGE, parent.speed + self.MUTATION_RANGE)
+            #Mutate the creature 
+            self.speed += uniform(parent.speed - self.MUTATION_RANGE, parent.speed + self.MUTATION_RANGE)
         super().__init__(QPixmap('assets/Slime.png'))
             
 
@@ -50,7 +51,7 @@ class Creature(QGraphicsPixmapItem):
 
     def expendEnergy(self, deltaX, deltaY, simulation):
         """Expend the amount of energy equal to the distance moved taking into account attributes"""
-        self.currentEnergy -= sqrt(pow(deltaX,2) + pow(deltaY,2))
+        self.currentEnergy -= sqrt(pow(deltaX,2) + pow(deltaY,2)) + self.speed * self.speed
 
     def eat(self):
         self.eatenFood += 1
