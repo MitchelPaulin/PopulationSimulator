@@ -203,7 +203,8 @@ class SimulationView():
            and deal with setting up next generation"""
         self.createFood(self.mainWindow.food_slider.sliderPosition())
         self.simulation.generation += 1
-        for creature in self.simulation.creatures:
+        creatureList = list(self.simulation.creatures)
+        for creature in creatureList:
             if creature.eatenFood >= 1: # creature survived to next generation 
                 newPos = self.randomPerimeterPosition()
                 creature.setPos(newPos[0], newPos[1])
