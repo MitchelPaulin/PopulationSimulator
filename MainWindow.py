@@ -38,6 +38,20 @@ class MainWindow(QMainWindow):
         sightComboBox.setCurrentIndex(1)
         sizeComboBox.setCurrentIndex(3)
 
+    def connectButtons(self, simulation):
+
+        #connect QWidgets to functions 
+        simulation.beginSimulationButton = self.begin_simulation_button
+        simulation.beginSimulationButton.clicked.connect(simulation.simulate)
+        
+        simulation.cancelSimulationButton = self.cancel_simulation_button
+        simulation.cancelSimulationButton.clicked.connect(simulation.cancelSimulation)
+
+        simulation.toggleSimulationButton = self.toggle_simulation_button
+        simulation.toggleSimulationButton.clicked.connect(simulation.toggleSimulation)
+
+        simulation.foodSlider = self.food_slider
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
@@ -51,5 +65,7 @@ if __name__ == "__main__":
 
     #Create a new simulation 
     simulationView = SimulationView(window)
+
+    window.connectButtons(simulationView)
 
     sys.exit(app.exec_())

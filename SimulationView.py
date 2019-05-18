@@ -31,8 +31,10 @@ class FrameRenderer():
     def nextFrame(self):
         """Render one time step"""
         for creature in self.simulation.creatures:
+            if creature.energy <= 0:
+                continue
             closestFood = creature.findClosestFood(self.simulation.food)
-            creature.moveTowardsFood(closestFood)
+            creature.moveTowardsFood(closestFood, self.simulation)
             if closeEnough(creature, closestFood, creature.speed):
                 creature.eat()
                 logging.info("I have been eaten! " + str(closestFood))
@@ -70,18 +72,6 @@ class SimulationView():
         self.mainWindow = mainWindow
 
         self.simWindow = mainWindow.simulation_window
-
-        #connect QWidgets to functions 
-        self.beginSimulationButton = mainWindow.begin_simulation_button
-        self.beginSimulationButton.clicked.connect(self.simulate)
-        
-        self.cancelSimulationButton = mainWindow.cancel_simulation_button
-        self.cancelSimulationButton.clicked.connect(self.cancelSimulation)
-
-        self.toggleSimulationButton = mainWindow.toggle_simulation_button
-        self.toggleSimulationButton.clicked.connect(self.toggleSimulation)
-
-        self.foodSlider = mainWindow.food_slider
  
     def createGraphicsScene(self): 
         """Create new graphics scene inside the graphics view and set size"""

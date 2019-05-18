@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QGraphicsPixmapItem
 from PyQt5.QtGui import QPixmap
 from Util import objectDistance, movementDelta
 from sys import maxsize
+from math import sqrt 
 import logging 
 
 class Creature(QGraphicsPixmapItem): 
@@ -15,6 +16,8 @@ class Creature(QGraphicsPixmapItem):
 
     speed = 2
     eatenFood = 0
+    energy = 1000 # how far a creature can move before it needs to stop
+    MUTATION_RANGE = 1 # each attribute has a change to mutate up or down one on mutation 
 
     def __init__(self, image=None):
         if not image:
@@ -22,10 +25,11 @@ class Creature(QGraphicsPixmapItem):
         else:
             super().__init__QGraphicsPixmapItem(image)
 
-    def moveTowardsFood(self, food):
+    def moveTowardsFood(self, food, simulation):
         """Moves this creature towards a given object"""
         delta = movementDelta(self, food, self.speed)
         self.setPos(self.x() + delta[0], self.y() + delta[1])
+        self.expendEnergy(delta[0], delta[1], simulation)
  
     def findClosestFood(self, foodList):
         """Finds the closest food to this creature and returns it"""
@@ -41,6 +45,10 @@ class Creature(QGraphicsPixmapItem):
                 closestFoodDistance = distance
 
         return closestFood
+
+    def expendEnergy(self, deltaX, deltaY, simulation):
+        """Expend the amount of energy equal to the distance moved taking into account attributes"""
+        self.energy -= sqrt(pow(deltaX,2) + pow(deltaY,2))
 
     def eat(self):
         self.eatenFood += 1
