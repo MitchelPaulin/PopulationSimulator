@@ -1,7 +1,7 @@
 #File SimulationView.py
 #Handles the rendering of a simulation 
 
-from PyQt5.QtWidgets import QGraphicsScene
+from PyQt5.QtWidgets import QGraphicsScene, QMessageBox
 from PyQt5.QtCore import QTimer
 from random import randint
 import logging
@@ -59,7 +59,6 @@ class SimulationLoop():
         logging.info("This generation had ended ")
         self.pause()
         self.simulationView.goToNextGeneration()
-        self.start()
     
     def start(self):
         self.timer.start()
@@ -132,15 +131,19 @@ class SimulationView():
             return(randint(self.BUFFER, self.graphicsScene.width() - self.BUFFER), 0)
         else: #West
             return(0, randint(self.BUFFER, self.graphicsScene.height() - self.BUFFER))
- 
+
+    def drawCreature(self, creature):
+        """Draw an instance of a creature to the screen"""
+        newPos = self.randomPerimeterPosition()
+        self.simulation.addCreature(creature)
+        self.graphicsScene.addItem(creature)
+        creature.setPos(newPos[0], newPos[1])
+
     def createCreatures(self, creatureAmount=10):
         """Draw the creature items to the screen and create new creature objects"""
         for _ in range(creatureAmount):
-            newPos = self.randomPerimeterPosition()
             newCreature = Creature()
-            self.simulation.addCreature(newCreature)
-            self.graphicsScene.addItem(newCreature)
-            newCreature.setPos(newPos[0], newPos[1])
+            self.drawCreature(newCreature)
 
     def simulate(self):
         """Call the correct function based on the simulation state"""
@@ -209,7 +212,8 @@ class SimulationView():
                 newPos = self.randomPerimeterPosition()
                 creature.setPos(newPos[0], newPos[1])
                 if creature.eatenFood >= 2: #create survived with enough food to reproduce  
-                    creature.reproduce() 
+                    offspring = Creature(creature)
+                    self.drawCreature(offspring)
             else: #creature did not find enough food
                 logging.info("Create " + str(creature) + " has perished")
                 self.simulation.creatures.remove(creature)
@@ -217,3 +221,11 @@ class SimulationView():
                 continue 
 
             creature.resetState()
+
+        if len(self.simulation.creatures) == 0:
+            self.cancelSimulation()
+            box = QMessageBox(self.mainWindow)
+            box.setText("No creatures left")
+            box.open()
+        else:
+            self.simulationLoop.start()
