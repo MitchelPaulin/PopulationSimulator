@@ -140,7 +140,12 @@ class SimulationView():
 
     #clear sim window
     def cancelSimulation(self):
+        # if items are not explicitly removed/deleted they will stick around, likely some issues with the PyQt bindings
+        # not always calling the destructor properly 
         for item in self.graphicsScene.items():
             self.graphicsScene.removeItem(item)
+        for food in self.simulation.food:
+            self.simulation.food.remove(food)
+            
         self.isSimulating = False 
         self.simulationStarted = False 
