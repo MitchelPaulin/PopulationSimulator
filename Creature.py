@@ -5,10 +5,16 @@ from PyQt5.QtWidgets import QGraphicsPixmapItem
 from PyQt5.QtGui import QPixmap
 from Util import objectDistance, movementDelta
 from sys import maxsize
+import logging 
 
 class Creature(QGraphicsPixmapItem): 
+    """
+    Holds all the information relevant to a creature 
+    Each creature can move, reproduce and mutate 
+    """
 
     speed = 1
+    eatenFood = 0
 
     def __init__(self, image=None):
         if not image:
@@ -16,13 +22,13 @@ class Creature(QGraphicsPixmapItem):
         else:
             super().__init__QGraphicsPixmapItem(image)
 
-    #moves this creature towards a given object
     def moveTowardsFood(self, food):
+        """Moves this creature towards a given object"""
         delta = movementDelta(self, food, self.speed)
         self.setPos(self.x() + delta[0], self.y() + delta[1])
-
-    #find the closest food to this creature and returns it 
+ 
     def findClosestFood(self, foodList):
+        """Finds the closest food to this creature and returns it"""
         if not foodList or len(foodList) == 0:
             return None
 
@@ -35,3 +41,10 @@ class Creature(QGraphicsPixmapItem):
                 closestFoodDistance = distance
 
         return closestFood
+
+    def eat(self):
+        self.eatenFood += 1
+        logging.info("I have eaten " + str(self.eatenFood) + " " + str(self))
+
+    def emptyStomach(self):
+        self.eatenFood = 0

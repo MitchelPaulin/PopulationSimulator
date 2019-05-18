@@ -2,15 +2,17 @@
 #File MainWindow.py
 #Driver file for the application 
 
-import sys
+import sys, logging
 import qdarkstyle
 from SimulationView import SimulationView
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import QFile
-#from PyQt5.QtGui import QMainWindow
 from PyQt5.uic import loadUi
 
 class MainWindow(QMainWindow):
+    """
+    The Main panel of the application 
+    """
     
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -18,8 +20,9 @@ class MainWindow(QMainWindow):
         self.populateCostComboBox()
         self.show()
 
-    #populate and set the initial values for the QComboBoxes
+    
     def populateCostComboBox(self):
+        """Populate and set the initial values for the QComboBoxes"""
         functions = ['1', 'n', 'n\u00B2', 'n\u00B3']
         speedComboBox = self.speed_cost_function_comboBox
         sightComboBox = self.sight_cost_function_comboBox 
@@ -38,6 +41,8 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+
+    logging.basicConfig(filename='debug.log', filemode='w', level=logging.INFO)
 
     # setup stylesheet
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyside())

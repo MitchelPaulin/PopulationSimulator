@@ -4,12 +4,18 @@
 from PyQt5.QtWidgets import QGraphicsScene
 from PyQt5.QtCore import QTimer
 from random import randint
+import logging
 import Simulation
 from Food import Food 
 from Creature import Creature
 from Simulation import Simulation
+from Util import closeEnough
 
 class FrameRenderer():
+    """
+    A helper class for SimulationView which is responsible for 
+    rendering the frames of the animation 
+    """
 
     simulation = None 
     scene = None 
@@ -20,13 +26,18 @@ class FrameRenderer():
         self.scene = scene
         self.timer = QTimer()
         self.timer.timeout.connect(self.nextFrame)
-        self.timer.setInterval(1000/30)# 30 Frames per second  
+        self.timer.setInterval(1000/100)# 60 Frames per second  
 
-    #Render one time step 
     def nextFrame(self):
+        """Render one time step"""
         for creature in self.simulation.creatures:
             closestFood = creature.findClosestFood(self.simulation.food)
             creature.moveTowardsFood(closestFood)
+            if closeEnough(creature, closestFood, 1):
+                creature.eat()
+                logging.info("I have been eaten! " + str(closestFood))
+                self.scene.removeItem(closestFood)
+                self.simulation.food.remove(closestFood)      
     
     def start(self):
         self.timer.start()
@@ -36,6 +47,10 @@ class FrameRenderer():
         
         
 class SimulationView():
+    """
+    Main driver class responsible for handling UI interactions 
+    and setting up simulations.
+    """
 
     mainWindow = None
     graphicsScene = None 
@@ -52,12 +67,9 @@ class SimulationView():
 
 
     def __init__(self, mainWindow):
-
         self.mainWindow = mainWindow
 
         self.simWindow = mainWindow.simulation_window
-
-        self.createGraphicsScene()
 
         #connect QWidgets to functions 
         self.beginSimulationButton = mainWindow.begin_simulation_button
@@ -70,15 +82,15 @@ class SimulationView():
         self.toggleSimulationButton.clicked.connect(self.toggleSimulation)
 
         self.foodSlider = mainWindow.food_slider
-
-    #create new graphics scene inside the graphics view and set size 
+ 
     def createGraphicsScene(self): 
+        """Create new graphics scene inside the graphics view and set size"""
         self.graphicsScene = QGraphicsScene()
         self.graphicsScene.setSceneRect(self.simWindow.x(), self.simWindow.y(), self.simWindow.width() - self.BUFFER, self.simWindow.height() - self.BUFFER)
         self.simWindow.setScene(self.graphicsScene)
-
-    #draw the food items to the screen and create new food objects 
+ 
     def createFood(self, foodAmount):
+        """Draw the food items to the screen and create new food objects"""
         for _ in range(foodAmount):
             food_x = randint(self.BUFFER, self.graphicsScene.width() - self.BUFFER)
             food_y = randint(self.BUFFER, self.graphicsScene.height() - self.BUFFER)
@@ -87,8 +99,9 @@ class SimulationView():
             self.graphicsScene.addItem(newFood)
             newFood.setPos(food_x, food_y)
 
-    #retrun an (x,y) position along the perimeter of the scene 
     def randomPerimeterPosition(self):
+        """Retrun an (x,y) position along the perimeter of the scene.
+           Helpful when drawing creatures"""
         direction = randint(1,4)
         if direction == 1: #North
             return (randint(self.BUFFER, self.graphicsScene.width() - self.BUFFER), self.graphicsScene.height() - self.BUFFER)
@@ -98,9 +111,9 @@ class SimulationView():
             return(randint(self.BUFFER, self.graphicsScene.width() - self.BUFFER), 0)
         else: #West
             return(0, randint(self.BUFFER, self.graphicsScene.height() - self.BUFFER))
-
-    #draw the creature items to the screen and create new creature objects 
+ 
     def createCreatures(self, creatureAmount=10):
+        """Draw the creature items to the screen and create new creature objects"""
         for _ in range(creatureAmount):
             newPos = self.randomPerimeterPosition()
             newCreature = Creature()
@@ -108,24 +121,24 @@ class SimulationView():
             self.graphicsScene.addItem(newCreature)
             newCreature.setPos(newPos[0], newPos[1])
 
-    #call the correct function based on the simulation state
     def simulate(self):
+        """Call the correct function based on the simulation state"""
         if not self.isSimulating:
             self.start()
             self.isSimulating = True 
             self.simulationStarted = True
-
-    #start the simulation 
+ 
     def start(self):
+        """Start the simulation"""
+        self.createGraphicsScene()
         self.simulation = Simulation(self.mainWindow)
         self.frameRenderer = FrameRenderer(self.simulation, self.graphicsScene)
         self.createFood(self.foodSlider.sliderPosition())
         self.createCreatures()
         self.frameRenderer.start() 
-    
-    #toggle whether or not we are current simulating 
+     
     def toggleSimulation(self):
-
+        """Toggle whether or not we are current simulating"""
         if not self.simulationStarted:
             return 
 
@@ -137,11 +150,14 @@ class SimulationView():
             self.toggleSimulationButton.setText("Pause Simulation")
 
         self.isSimulating = not self.isSimulating
-    
-    #go through the scene/objects and delete assets 
-    #normally you shouldn't have to do this but there seems to be an
-    #issue with the C++ bindings not causing the deconstructor to always run 
-    def cleanAssets(self):
+     
+    def deleteAssets(self):
+        """
+        Go through the scene/objects and delete assets. 
+        Normally you shouldn't have to do this but there seems to be an
+        issue with the C++ bindings not causing the deconstructor to always
+        run so we need to delete the assets outself
+        """
         for food in self.simulation.food:
             self.simulation.food.remove(food)
 
@@ -151,8 +167,8 @@ class SimulationView():
         for item in self.graphicsScene.items():
             self.graphicsScene.removeItem(item)
 
-    #clear sim window
     def cancelSimulation(self):
-        self.cleanAssets()
+        """Clear the simulation scene and reset variables"""
+        self.deleteAssets()
         self.isSimulating = False 
         self.simulationStarted = False 

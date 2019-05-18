@@ -1,22 +1,20 @@
 #File Util.py 
 #Contains some helpful functions which don't inherently belong to any class 
 
-from math import sqrt
+from math import sqrt, pow
 
-#returns the absolute Euclidean distance between two QObjects object1 and object2
 def objectDistance(object1, object2):
-
+    """Returns the absolute Euclidean distance between two QObjects object1 and object2"""
     if not object1 or not object2:
         return None 
 
     xDistance = object1.x() - object2.x()
     yDistance = object1.y() - object2.y()
-    return sqrt(xDistance**2 + yDistance**2)
+    return sqrt(pow(xDistance,2) + pow(yDistance,2))
 
-#returns the vector along which the source would need to move along a target in order to reach it's destination
-#with the additional restriction of only moving distance 
 def movementDelta(source, destination, distance):
-    
+    """Returns the vector along which the source would need to move along a target in order to reach it's destination
+       with the additional restriction of only moving distance """
     if not source or not destination:
         return (0,0)
 
@@ -29,3 +27,9 @@ def movementDelta(source, destination, distance):
     deltaX = (destination.x() - source.x()) * fractionOfTotalDistance
     deltaY = (destination.y() - source.y()) * fractionOfTotalDistance
     return (deltaX, deltaY) 
+ 
+def closeEnough(object1, object2, epsilon):
+    """Determines if two object are closer than epsilon distance apart"""
+    if object1 and object2:
+        return objectDistance(object1, object2) <= epsilon
+    return False 

@@ -4,6 +4,12 @@
 import Food, Creature 
 
 class Simulation:
+    """
+    Holds information about a current instance of a simulation this includes 
+    actors and instance variables.
+    In theory an entire simulation can be recreated from this instance which 
+    makes it useful for data analyzation.
+    """
 
     food = []
     creatures = []
