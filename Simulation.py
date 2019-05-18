@@ -13,6 +13,7 @@ class Simulation:
 
     food = []
     creatures = []
+    generation = 0
 
     def __init__(self, mainWindow):
         pass  
@@ -22,3 +23,6 @@ class Simulation:
     
     def addCreature(self, creature):
         self.creatures.append(creature)
+
+    def populationSize(self):
+        return len(self.creatures)

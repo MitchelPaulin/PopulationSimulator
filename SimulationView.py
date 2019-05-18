@@ -18,15 +18,21 @@ class FrameRenderer():
     """
 
     simulation = None 
+    mainWindow = None 
     scene = None 
     timer = None 
 
-    def __init__(self, simulation, scene):
+    def __init__(self, simulation, mainWindow, scene):
         self.simulation = simulation
+        self.mainWindow = mainWindow
         self.scene = scene
         self.timer = QTimer()
-        self.timer.timeout.connect(self.nextFrame)
+        self.timer.timeout.connect(self.nextTimeStep)
         self.timer.setInterval(1000/30)# 60 Frames per second  
+
+    def nextTimeStep(self):
+        self.nextFrame()
+        self.updateLcds()
 
     def nextFrame(self):
         """Render one time step"""
@@ -40,6 +46,12 @@ class FrameRenderer():
                 logging.info("I have been eaten! " + str(closestFood))
                 self.scene.removeItem(closestFood)
                 self.simulation.food.remove(closestFood)      
+
+    def updateLcds(self):
+        """Update the LCD displays in the scene"""
+        self.mainWindow.generation_number_display.display(self.simulation.generation)
+        self.mainWindow.creature_number_display.display(self.simulation.populationSize())
+        
     
     def start(self):
         self.timer.start()
@@ -64,14 +76,25 @@ class SimulationView():
     beginSimulationButton = None 
     cancelSimulationButton = None 
     toggleSimulationButton = None 
-    foodSlider = None 
     BUFFER = 20 #ensure we don't drop items too close to the extremes of the scene 
-
 
     def __init__(self, mainWindow):
         self.mainWindow = mainWindow
 
         self.simWindow = mainWindow.simulation_window
+
+        self.connectInputsToFunctions(self.mainWindow)
+
+    def connectInputsToFunctions(self, mainWindow):
+        """Connect all user inputs to functions"""
+        self.beginSimulationButton = mainWindow.begin_simulation_button
+        self.beginSimulationButton.clicked.connect(self.simulate)
+        
+        self.cancelSimulationButton = mainWindow.cancel_simulation_button
+        self.cancelSimulationButton.clicked.connect(self.cancelSimulation)
+
+        self.toggleSimulationButton = mainWindow.toggle_simulation_button
+        self.toggleSimulationButton.clicked.connect(self.toggleSimulation)
  
     def createGraphicsScene(self): 
         """Create new graphics scene inside the graphics view and set size"""
@@ -122,8 +145,8 @@ class SimulationView():
         """Start the simulation"""
         self.createGraphicsScene()
         self.simulation = Simulation(self.mainWindow)
-        self.frameRenderer = FrameRenderer(self.simulation, self.graphicsScene)
-        self.createFood(self.foodSlider.sliderPosition())
+        self.frameRenderer = FrameRenderer(self.simulation, self.mainWindow, self.graphicsScene)
+        self.createFood(self.mainWindow.food_slider.sliderPosition())
         self.createCreatures()
         self.frameRenderer.start() 
      
