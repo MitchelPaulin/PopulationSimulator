@@ -16,21 +16,30 @@ class Creature(QGraphicsPixmapItem):
     """
 
     speed = 1
-    eatenFood = 0
+    MIN_SPEED = 0.5
     sight = 10
+    MIN_SIGHT = 5
+    SIGHT_MODIFER = 20
+    size = 1
+    MIN_SIZE = 0.5
+    eatenFood = 0
     currentEnergy = 3000 # how far a creature can move before it needs to stop
     CREATURE_STARTING_ENERGY = 3000
-    MUTATION_RANGE = 1 # each attribute has a change to mutate up or down one on mutation 
-    SIGHT_MODIFER = 20
+    MUTATION_RANGE = 0.5 # each attribute has a change to mutate up or down one on mutation 
 
     def __init__(self, parent=None):
         if parent:
-            #Mutate the creature 
-            self.speed += uniform(parent.speed - self.MUTATION_RANGE, parent.speed + self.MUTATION_RANGE)
-            self.sight += uniform(parent.sight - self.MUTATION_RANGE, parent.speed + self.MUTATION_RANGE)
+            #Create a new creature based on the parent allowing for natural mutations 
+            self.speed = max(uniform(parent.speed - self.MUTATION_RANGE, parent.speed + self.MUTATION_RANGE), self.MIN_SPEED)
+            self.sight = max(uniform(parent.sight - self.MUTATION_RANGE, parent.speed + self.MUTATION_RANGE), self.MIN_SIGHT)
+            self.size  = max(uniform(parent.size - self.MUTATION_RANGE, parent.size + self.MUTATION_RANGE), self.MIN_SIZE)
         super().__init__(QPixmap('assets/Slime.png'))
-            
+        logging.info("I have been born! " + str(self) + " from parent " + str(parent))
 
+    def __str__(self):
+        base = super().__str__() 
+        return base + ("(speed=%f size=%f sight=%f)" % (self.speed, self.size, self.sight))
+            
     def moveTowardsObject(self, destObj, simulation):
         """Moves this creature towards a given object"""
         delta = movementDelta(self, destObj, self.speed)
@@ -54,7 +63,7 @@ class Creature(QGraphicsPixmapItem):
 
     def expendEnergy(self, deltaX, deltaY, simulation):
         """Expend the amount of energy equal to the distance moved taking into account attributes"""
-        self.currentEnergy -= sqrt(pow(deltaX,2) + pow(deltaY,2)) + pow(self.speed, 2) + self.sight
+        self.currentEnergy -= pow(self.speed, 2)*pow(self.size, 3) + self.sight
 
     def eat(self):
         self.eatenFood += 1
@@ -68,4 +77,3 @@ class Creature(QGraphicsPixmapItem):
     def seeingDistance(self):
         """Returns the distance a creature cant spot objects"""
         return self.sight * self.SIGHT_MODIFER
-

@@ -25,7 +25,7 @@ class SimulationLoop():
         self.simulationView = simulationView
         self.timer = QTimer()
         self.timer.timeout.connect(self.nextTimeStep)
-        self.timer.setInterval(1000/30)# 60 Frames per second  
+        self.timer.setInterval(1000/60)# 60 Frames per second  
 
     def nextTimeStep(self):
         self.nextFrame()
@@ -37,7 +37,6 @@ class SimulationLoop():
         for creature in self.simulationView.simulation.creatures:
             if creature.currentEnergy <= 0 or creature.eatenFood >= 2:
                 continue 
-            creatureMoved = True
             closestFood = creature.findClosestFood(self.simulationView.simulation.food)
             if closestFood and objectDistance(creature, closestFood) < creature.seeingDistance():
                 creature.moveTowardsObject(closestFood, self.simulationView.simulation)
@@ -47,8 +46,11 @@ class SimulationLoop():
                     logging.info("I have been eaten " + str(closestFood))
                     self.simulationView.graphicsScene.removeItem(closestFood)
                     self.simulationView.simulation.food.remove(closestFood)  
-            else: #creature could not see food, move towards center
-                creature.moveTowardsObject(self.simulationView.CENTER_OF_SIM, self.simulationView.simulation)    
+                creatureMoved = True
+            elif not closeEnough(creature, self.simulationView.CENTER_OF_SIM, creature.speed): 
+                #creature could not see food, move towards center
+                creature.moveTowardsObject(self.simulationView.CENTER_OF_SIM, self.simulationView.simulation)
+                creatureMoved = True    
         if not creatureMoved:
             self.pause()
             self.nextGeneration() 
