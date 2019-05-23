@@ -1,7 +1,7 @@
 #File SimulationView.py
 #Handles the rendering of a simulation 
 
-from PyQt5.QtWidgets import QGraphicsScene, QMessageBox
+from PyQt5.QtWidgets import QGraphicsScene, QMessageBox, QGraphicsPixmapItem
 from PyQt5.QtCore import QTimer
 from random import randint
 import logging
@@ -9,7 +9,7 @@ import Simulation
 from Food import Food 
 from Creature import Creature
 from Simulation import Simulation
-from Util import closeEnough
+from Util import closeEnough, objectDistance
 
 class SimulationLoop():
     """
@@ -37,15 +37,18 @@ class SimulationLoop():
         for creature in self.simulationView.simulation.creatures:
             if creature.currentEnergy <= 0 or creature.eatenFood >= 2:
                 continue 
+            creatureMoved = True
             closestFood = creature.findClosestFood(self.simulationView.simulation.food)
-            if closestFood:
-                creature.moveTowardsFood(closestFood, self.simulationView.simulation)
-                creatureMoved = True
+            if closestFood and objectDistance(creature, closestFood) < creature.seeingDistance():
+                creature.moveTowardsObject(closestFood, self.simulationView.simulation)
                 if closeEnough(creature, closestFood, creature.speed):
+                    #if creature could reach food in next time step
                     creature.eat()
                     logging.info("I have been eaten " + str(closestFood))
                     self.simulationView.graphicsScene.removeItem(closestFood)
-                    self.simulationView.simulation.food.remove(closestFood)      
+                    self.simulationView.simulation.food.remove(closestFood)  
+            else: #creature could not see food, move towards center
+                creature.moveTowardsObject(self.simulationView.CENTER_OF_SIM, self.simulationView.simulation)    
         if not creatureMoved:
             self.pause()
             self.nextGeneration() 
@@ -83,6 +86,7 @@ class SimulationView():
     beginSimulationButton = None 
     cancelSimulationButton = None 
     toggleSimulationButton = None 
+    CENTER_OF_SIM = None 
     BUFFER = 20 #ensure we don't drop items too close to the extremes of the scene 
 
     def __init__(self, mainWindow):
@@ -108,12 +112,18 @@ class SimulationView():
         self.graphicsScene = QGraphicsScene()
         self.graphicsScene.setSceneRect(self.simWindow.x(), self.simWindow.y(), self.simWindow.width() - self.BUFFER, self.simWindow.height() - self.BUFFER)
         self.simWindow.setScene(self.graphicsScene)
+        
+        #add an object to the center of the screen for path finding purposes 
+        self.CENTER_OF_SIM = QGraphicsPixmapItem()
+        self.CENTER_OF_SIM.setPos(self.simWindow.width() / 2, self.simWindow.height() / 2)
+        self.graphicsScene.addItem(self.CENTER_OF_SIM)
  
     def createFood(self, foodAmount):
         """Draw the food items to the screen and create new food objects"""
+        FOOD_BUFFER = 25 # Don't let food spawn too close to the edges 
         for _ in range(foodAmount):
-            food_x = randint(self.BUFFER, self.graphicsScene.width() - self.BUFFER)
-            food_y = randint(self.BUFFER, self.graphicsScene.height() - self.BUFFER)
+            food_x = randint(FOOD_BUFFER, self.graphicsScene.width() - FOOD_BUFFER)
+            food_y = randint(FOOD_BUFFER, self.graphicsScene.height() -FOOD_BUFFER)
             newFood = Food()
             self.simulation.addFood(newFood)
             self.graphicsScene.addItem(newFood)
@@ -124,13 +134,13 @@ class SimulationView():
            Helpful when drawing creatures"""
         direction = randint(1,4)
         if direction == 1: #North
-            return (randint(self.BUFFER, self.graphicsScene.width() - self.BUFFER), self.graphicsScene.height() - self.BUFFER)
+            return (randint(self.BUFFER, self.graphicsScene.width() - self.BUFFER) - self.BUFFER, self.graphicsScene.height() - self.BUFFER)
         if direction == 2: #East
-            return (self.graphicsScene.width() - self.BUFFER, randint(self.BUFFER, self.graphicsScene.height() - self.BUFFER))
+            return (self.graphicsScene.width() - self.BUFFER, randint(self.BUFFER, self.graphicsScene.height() - self.BUFFER) - self.BUFFER)
         if direction == 3: #South
-            return(randint(self.BUFFER, self.graphicsScene.width() - self.BUFFER), 0)
+            return(randint(self.BUFFER, self.graphicsScene.width() - self.BUFFER) - self.BUFFER, 0)
         else: #West
-            return(0, randint(self.BUFFER, self.graphicsScene.height() - self.BUFFER))
+            return(0, randint(self.BUFFER, self.graphicsScene.height() - self.BUFFER) - self.BUFFER)
 
     def drawCreature(self, creature):
         """Draw an instance of a creature to the screen"""

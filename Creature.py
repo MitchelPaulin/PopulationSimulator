@@ -17,20 +17,23 @@ class Creature(QGraphicsPixmapItem):
 
     speed = 1
     eatenFood = 0
-    currentEnergy = 2500 # how far a creature can move before it needs to stop
-    CREATURE_STARTING_ENERGY = 2500
+    sight = 10
+    currentEnergy = 3000 # how far a creature can move before it needs to stop
+    CREATURE_STARTING_ENERGY = 3000
     MUTATION_RANGE = 1 # each attribute has a change to mutate up or down one on mutation 
+    SIGHT_MODIFER = 20
 
     def __init__(self, parent=None):
         if parent:
             #Mutate the creature 
             self.speed += uniform(parent.speed - self.MUTATION_RANGE, parent.speed + self.MUTATION_RANGE)
+            self.sight += uniform(parent.sight - self.MUTATION_RANGE, parent.speed + self.MUTATION_RANGE)
         super().__init__(QPixmap('assets/Slime.png'))
             
 
-    def moveTowardsFood(self, food, simulation):
+    def moveTowardsObject(self, destObj, simulation):
         """Moves this creature towards a given object"""
-        delta = movementDelta(self, food, self.speed)
+        delta = movementDelta(self, destObj, self.speed)
         self.setPos(self.x() + delta[0], self.y() + delta[1])
         self.expendEnergy(delta[0], delta[1], simulation)
  
@@ -51,7 +54,7 @@ class Creature(QGraphicsPixmapItem):
 
     def expendEnergy(self, deltaX, deltaY, simulation):
         """Expend the amount of energy equal to the distance moved taking into account attributes"""
-        self.currentEnergy -= sqrt(pow(deltaX,2) + pow(deltaY,2)) + self.speed * self.speed
+        self.currentEnergy -= sqrt(pow(deltaX,2) + pow(deltaY,2)) + pow(self.speed, 2) + self.sight
 
     def eat(self):
         self.eatenFood += 1
@@ -61,4 +64,8 @@ class Creature(QGraphicsPixmapItem):
         """Set a creature back to its starting state"""
         self.eatenFood = 0
         self.currentEnergy = self.CREATURE_STARTING_ENERGY
+
+    def seeingDistance(self):
+        """Returns the distance a creature cant spot objects"""
+        return self.sight * self.SIGHT_MODIFER
 
