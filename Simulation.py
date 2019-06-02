@@ -1,7 +1,9 @@
-#File Simulation.py 
-#Holds all the information about a particular instance of a simulation 
+# File Simulation.py
+# Holds all the information about a particular instance of a simulation
 
-import Food, Creature 
+import Food
+import Creature
+
 
 class Simulation:
     """
@@ -16,11 +18,11 @@ class Simulation:
     generation = 0
 
     def __init__(self, mainWindow):
-        pass  
+        pass
 
     def addFood(self, food):
         self.food.append(food)
-    
+
     def addCreature(self, creature):
         self.creatures.append(creature)
 
