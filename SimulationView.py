@@ -9,6 +9,7 @@ import Simulation
 from Food import Food
 from Creature import Creature
 from Simulation import Simulation
+from Graph import Graph
 from Util import closeEnough, objectDistance
 
 
@@ -98,6 +99,7 @@ class SimulationView():
     graphicsScene = None
     simWindow = None
     simulation = None
+    graphView = None 
     isSimulating = False
     simulationStarted = False
     paused = False
@@ -114,6 +116,8 @@ class SimulationView():
         self.simWindow = mainWindow.simulation_window
 
         self.connectInputsToFunctions(self.mainWindow)
+
+        self.graphView = Graph(self.mainWindow.graph_container)
 
     def connectInputsToFunctions(self, mainWindow):
         """Connect all user inputs to functions"""

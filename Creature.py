@@ -39,7 +39,7 @@ class Creature(QGraphicsPixmapItem):
             self.speed = max(uniform(parent.speed - self.MUTATION_RANGE,
                                      parent.speed + self.MUTATION_RANGE), self.MIN_SPEED)
             self.sight = max(uniform(parent.sight - self.MUTATION_RANGE,
-                                     parent.speed + self.MUTATION_RANGE), self.MIN_SIGHT)
+                                     parent.sight + self.MUTATION_RANGE), self.MIN_SIGHT)
             self.size = max(uniform(parent.size - self.MUTATION_RANGE,
                                     parent.size + self.MUTATION_RANGE), self.MIN_SIZE)
         super().__init__(QPixmap('assets/Slime.png'))
