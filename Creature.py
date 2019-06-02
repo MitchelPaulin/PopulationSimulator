@@ -19,17 +19,18 @@ class Creature(QGraphicsPixmapItem):
     speed = 1
     MIN_SPEED = 0.5
 
-    sight = 10
-    MIN_SIGHT = 5
+    sight = 15
+    MIN_SIGHT = 10
     SIGHT_MODIFER = 20
 
     size = 1
     MIN_SIZE = 0.5
+    EAT_SIZE = 1.2 # creature must be 20% larger than another creature to eat it 
 
     eatenFood = 0
     closestFood = None
-    currentEnergy = 3000  # how far a creature can move before it needs to stop
-    CREATURE_STARTING_ENERGY = 3000
+    CREATURE_STARTING_ENERGY = 10000 # how far a creature can move before it needs to stop
+    currentEnergy = CREATURE_STARTING_ENERGY  
     MUTATION_RANGE = 0.5  # each attribute has a change to mutate up or down one on mutation
 
     def __init__(self, parent=None):
@@ -41,7 +42,6 @@ class Creature(QGraphicsPixmapItem):
                                      parent.speed + self.MUTATION_RANGE), self.MIN_SIGHT)
             self.size = max(uniform(parent.size - self.MUTATION_RANGE,
                                     parent.size + self.MUTATION_RANGE), self.MIN_SIZE)
-            self.size = 1
         super().__init__(QPixmap('assets/Slime.png'))
         logging.info("I have been born! " + str(self) +
                      " from parent " + str(parent))
@@ -56,7 +56,7 @@ class Creature(QGraphicsPixmapItem):
         self.setPos(self.x() + delta[0], self.y() + delta[1])
         self.expendEnergy(delta[0], delta[1], simulation)
 
-    def findClosestFood(self, foodList):
+    def findClosestFood(self, foodList, creatureList):
         """Finds the closest food to this creature and returns it"""
         if not foodList or len(foodList) == 0:
             return None
@@ -67,6 +67,12 @@ class Creature(QGraphicsPixmapItem):
             distance = objectDistance(self, food)
             if closestFoodDistance > distance:
                 closestFood = food
+                closestFoodDistance = distance
+
+        for creature in creatureList:
+            distance = objectDistance(self, creature)
+            if closestFoodDistance > distance and self.size / creature.size >= self.EAT_SIZE:
+                closestFood = creature
                 closestFoodDistance = distance
 
         return closestFood

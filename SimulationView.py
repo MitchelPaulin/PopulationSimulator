@@ -41,7 +41,7 @@ class SimulationLoop():
 
             if not creature.closestFood or not creature.closestFood in self.simulationView.graphicsScene.items():
                 creature.closestFood = creature.findClosestFood(
-                    self.simulationView.simulation.food)
+                    self.simulationView.simulation.food, [x for x in self.simulationView.simulation.creatures if x not in [creature]])
 
             closestFood = creature.closestFood
 
@@ -54,7 +54,11 @@ class SimulationLoop():
                     creature.closestFood = None
                     logging.info("I have been eaten " + str(closestFood))
                     self.simulationView.graphicsScene.removeItem(closestFood)
-                    self.simulationView.simulation.food.remove(closestFood)
+                    if isinstance(closestFood, Food):
+                        self.simulationView.simulation.food.remove(closestFood)
+                    else:
+                        self.simulationView.simulation.creatures.remove(
+                            closestFood)
                 creatureMoved = True
             elif not closeEnough(creature, self.simulationView.CENTER_OF_SIM, creature.speed):
                 # creature could not see food, move towards center
