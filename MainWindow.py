@@ -46,7 +46,7 @@ if __name__ == "__main__":
     logging.basicConfig(filename='debug.log', filemode='w', level=logging.INFO)
 
     # setup stylesheet
-    app.setStyleSheet(qdarkstyle.load_stylesheet_pyside())
+    app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
 
     window = MainWindow()
 
