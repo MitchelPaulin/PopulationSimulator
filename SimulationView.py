@@ -37,12 +37,18 @@ class SimulationLoop():
         for creature in self.simulationView.simulation.creatures:
             if creature.currentEnergy <= 0 or creature.eatenFood >= 2:
                 continue 
-            closestFood = creature.findClosestFood(self.simulationView.simulation.food)
+
+            if not creature.closestFood or not creature.closestFood in self.simulationView.graphicsScene.items():
+                creature.closestFood = creature.findClosestFood(self.simulationView.simulation.food)
+
+            closestFood = creature.closestFood
+
             if closestFood and objectDistance(creature, closestFood) < creature.seeingDistance():
                 creature.moveTowardsObject(closestFood, self.simulationView.simulation)
-                if closeEnough(creature, closestFood, creature.speed):
+                if closeEnough(creature, closestFood, creature.speed + self.simulationView.BUFFER):
                     #if creature could reach food in next time step
                     creature.eat()
+                    creature.closestFood = None 
                     logging.info("I have been eaten " + str(closestFood))
                     self.simulationView.graphicsScene.removeItem(closestFood)
                     self.simulationView.simulation.food.remove(closestFood)  
@@ -233,7 +239,7 @@ class SimulationView():
                     offspring = Creature(creature)
                     self.drawCreature(offspring)
             else: #creature did not find enough food
-                logging.info("Create " + str(creature) + " has perished")
+                logging.info("Creature " + str(creature) + " has perished")
                 self.simulation.creatures.remove(creature)
                 self.graphicsScene.removeItem(creature)
                 continue 

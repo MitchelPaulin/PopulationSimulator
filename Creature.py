@@ -17,12 +17,16 @@ class Creature(QGraphicsPixmapItem):
 
     speed = 1
     MIN_SPEED = 0.5
+
     sight = 10
     MIN_SIGHT = 5
     SIGHT_MODIFER = 20
+
     size = 1
     MIN_SIZE = 0.5
+
     eatenFood = 0
+    closestFood = None 
     currentEnergy = 3000 # how far a creature can move before it needs to stop
     CREATURE_STARTING_ENERGY = 3000
     MUTATION_RANGE = 0.5 # each attribute has a change to mutate up or down one on mutation 
@@ -33,6 +37,7 @@ class Creature(QGraphicsPixmapItem):
             self.speed = max(uniform(parent.speed - self.MUTATION_RANGE, parent.speed + self.MUTATION_RANGE), self.MIN_SPEED)
             self.sight = max(uniform(parent.sight - self.MUTATION_RANGE, parent.speed + self.MUTATION_RANGE), self.MIN_SIGHT)
             self.size  = max(uniform(parent.size - self.MUTATION_RANGE, parent.size + self.MUTATION_RANGE), self.MIN_SIZE)
+            self.size = 1
         super().__init__(QPixmap('assets/Slime.png'))
         logging.info("I have been born! " + str(self) + " from parent " + str(parent))
 
@@ -73,6 +78,7 @@ class Creature(QGraphicsPixmapItem):
         """Set a creature back to its starting state"""
         self.eatenFood = 0
         self.currentEnergy = self.CREATURE_STARTING_ENERGY
+        self.closestFood = None
 
     def seeingDistance(self):
         """Returns the distance a creature cant spot objects"""
