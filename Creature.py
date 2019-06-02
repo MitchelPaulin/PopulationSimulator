@@ -19,18 +19,19 @@ class Creature(QGraphicsPixmapItem):
     speed = 1
     MIN_SPEED = 0.5
 
-    sight = 15
-    MIN_SIGHT = 10
-    SIGHT_MODIFER = 20
+    sight = 1
+    MIN_SIGHT = 0.5
+    SIGHT_MODIFER = 200
 
     size = 1
     MIN_SIZE = 0.5
-    EAT_SIZE = 1.2 # creature must be 20% larger than another creature to eat it 
+    EAT_SIZE = 1.2  # creature must be 20% larger than another creature to eat it
 
     eatenFood = 0
     closestFood = None
-    CREATURE_STARTING_ENERGY = 10000 # how far a creature can move before it needs to stop
-    currentEnergy = CREATURE_STARTING_ENERGY  
+    # how far a creature can move before it needs to stop
+    CREATURE_STARTING_ENERGY = 10000
+    currentEnergy = CREATURE_STARTING_ENERGY
     MUTATION_RANGE = 0.5  # each attribute has a change to mutate up or down one on mutation
 
     def __init__(self, parent=None):

@@ -99,7 +99,7 @@ class SimulationView():
     graphicsScene = None
     simWindow = None
     simulation = None
-    graphView = None 
+    graphView = None
     isSimulating = False
     simulationStarted = False
     paused = False
@@ -238,6 +238,7 @@ class SimulationView():
         """Clear the simulation scene and reset variables"""
         self.simulationLoop.pause()
         self.deleteAssets()
+        self.graphView.resetGraph()
         self.isSimulating = False
         self.simulationStarted = False
 
@@ -267,6 +268,9 @@ class SimulationView():
                 continue
 
             creature.resetState()
+
+        # update the graph with the population attributes
+        self.graphView.updateGraph(self.simulation)
 
         if len(self.simulation.creatures) == 0:
             self.cancelSimulation()
