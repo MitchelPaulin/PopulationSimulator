@@ -78,7 +78,7 @@ class SimulationLoop():
         self.simulationView.goToNextGeneration()
 
     def start(self):
-        self.timer.start() 
+        self.timer.start()
 
     def pause(self):
         self.timer.stop()
@@ -96,7 +96,7 @@ class SimulationView():
     simulation = None
     isSimulating = False
     simulationStarted = False
-    paused = False 
+    paused = False
     simulationLoop = None
     beginSimulationButton = None
     cancelSimulationButton = None
@@ -199,11 +199,11 @@ class SimulationView():
         if self.isSimulating:
             self.simulationLoop.pause()
             self.toggleSimulationButton.setText("Play Simulation")
-            self.paused = True 
+            self.paused = True
         else:
             self.simulationLoop.start()
             self.toggleSimulationButton.setText("Pause Simulation")
-            self.paused = False 
+            self.paused = False
 
         self.isSimulating = not self.isSimulating
 
