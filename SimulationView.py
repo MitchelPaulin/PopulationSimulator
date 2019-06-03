@@ -37,9 +37,12 @@ class SimulationLoop():
         """Render one time step"""
         creatureMoved = False
         for creature in self.simulationView.simulation.creatures:
-            if creature.currentEnergy <= 0 or creature.eatenFood >= 2:
+            if creature.currentEnergy <= 0:
                 continue
 
+            # avoid larger creatures
+
+            # try to find new food 
             if not creature.closestFood or not creature.closestFood in self.simulationView.graphicsScene.items():
                 creature.closestFood = creature.findClosestFood(
                     self.simulationView.simulation.food, [x for x in self.simulationView.simulation.creatures if x not in [creature]])
@@ -197,6 +200,8 @@ class SimulationView():
         self.simulationLoop = SimulationLoop(self)
         self.createFood(self.mainWindow.food_slider.sliderPosition())
         self.createCreatures()
+        self.graphView.setSimulation(self.simulation)
+        self.graphView.createAxis()
         self.simulationLoop.start()
 
     def toggleSimulation(self):
@@ -222,6 +227,9 @@ class SimulationView():
         issue with the C++ bindings not causing the deconstructor to always
         run so we need to delete the assets outself
         """
+        if not self.simulation:
+            return
+
         foodList = list(self.simulation.food)
         for food in foodList:
             self.simulation.food.remove(food)
@@ -236,15 +244,22 @@ class SimulationView():
 
     def cancelSimulation(self):
         """Clear the simulation scene and reset variables"""
-        self.simulationLoop.pause()
+        if self.simulationLoop:
+            self.simulationLoop.pause()
+        if self.graphView:
+            self.graphView.resetGraph()
+
         self.deleteAssets()
-        self.graphView.resetGraph()
         self.isSimulating = False
         self.simulationStarted = False
 
     def goToNextGeneration(self):
         """Set the simulation back to a starting state
            and deal with setting up next generation"""
+
+        if not self.simulation:
+            return 
+
         # delete all remaining food
         foodList = list(self.simulation.food)
         for food in foodList:
@@ -259,7 +274,7 @@ class SimulationView():
                 newPos = self.randomPerimeterPosition()
                 creature.setPos(newPos[0], newPos[1])
                 if creature.eatenFood >= 2:  # create survived with enough food to reproduce
-                    offspring = Creature(creature)
+                    offspring = Creature(creature, self.simulation)
                     self.drawCreature(offspring)
             else:  # creature did not find enough food
                 logging.info("Creature " + str(creature) + " has perished")
@@ -270,7 +285,7 @@ class SimulationView():
             creature.resetState()
 
         # update the graph with the population attributes
-        self.graphView.updateGraph(self.simulation)
+        self.graphView.updateGraph()
 
         if len(self.simulation.creatures) == 0:
             self.cancelSimulation()

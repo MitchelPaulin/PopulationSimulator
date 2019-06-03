@@ -34,15 +34,18 @@ class Creature(QGraphicsPixmapItem):
     currentEnergy = CREATURE_STARTING_ENERGY
     MUTATION_RANGE = 0.5  # each attribute has a change to mutate up or down one on mutation
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, simulation=None):
         if parent:
             # Create a new creature based on the parent allowing for natural mutations
-            self.speed = max(uniform(parent.speed - self.MUTATION_RANGE,
-                                     parent.speed + self.MUTATION_RANGE), self.MIN_SPEED)
-            self.sight = max(uniform(parent.sight - self.MUTATION_RANGE,
-                                     parent.sight + self.MUTATION_RANGE), self.MIN_SIGHT)
-            self.size = max(uniform(parent.size - self.MUTATION_RANGE,
-                                    parent.size + self.MUTATION_RANGE), self.MIN_SIZE)
+            if simulation.enableSpeedMutation:
+                self.speed = max(uniform(parent.speed - self.MUTATION_RANGE,
+                                         parent.speed + self.MUTATION_RANGE), self.MIN_SPEED)
+            if simulation.enableSightMutation:
+                self.sight = max(uniform(parent.sight - self.MUTATION_RANGE,
+                                         parent.sight + self.MUTATION_RANGE), self.MIN_SIGHT)
+            if simulation.enableSizeMutation:
+                self.size = max(uniform(parent.size - self.MUTATION_RANGE,
+                                        parent.size + self.MUTATION_RANGE), self.MIN_SIZE)
         super().__init__(QPixmap('assets/Slime.png'))
         logging.info("I have been born! " + str(self) +
                      " from parent " + str(parent))

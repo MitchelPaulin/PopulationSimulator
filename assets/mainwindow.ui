@@ -182,6 +182,9 @@
     <property name="text">
      <string/>
     </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="QCheckBox" name="enable_sight_mutation">
     <property name="geometry">
@@ -198,6 +201,9 @@
     <property name="text">
      <string/>
     </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="QCheckBox" name="enable_speed_mutation">
     <property name="geometry">
@@ -213,6 +219,9 @@
     </property>
     <property name="text">
      <string/>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QLCDNumber" name="generation_number_display">

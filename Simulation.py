@@ -16,9 +16,14 @@ class Simulation:
     food = []
     creatures = []
     generation = 0
+    enableSizeMutation = False
+    enableSightMutation = False
+    enableSpeedMutation = False
 
     def __init__(self, mainWindow):
-        pass
+        self.enableSizeMutation = mainWindow.enable_size_mutation.isChecked()
+        self.enableSightMutation = mainWindow.enable_sight_mutation.isChecked()
+        self.enableSpeedMutation = mainWindow.enable_speed_mutation.isChecked()
 
     def addFood(self, food):
         self.food.append(food)
