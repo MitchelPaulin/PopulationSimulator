@@ -1,19 +1,35 @@
 # PopulationSimulator
-A simulator meant to see how populations evolve over time due to natural occurring mutations 
+Population Simulator is a program meant to observe how populations can change over time. Every creature has a certain energy expenditure and three attributes; speed, size and sight. You can see how these attributes become more prominent or recessive over time as only surviving creatures pass on their attributes to their offspring. 
 
-# Dependecies 
-Uses python3 and pip for convenience 
+![sample](https://github.com/MitchelPaulin/PopulationSimulator/blob/master/assets/demo/sample.png)
 
-PyQt5 for Graphics 
+The creatures compete for food using their attributes to try and beat out the other creatures in a limited resource pool. 
 
-Recommended that you use the optional dark theme qdarkstyle, PySide2 is required because of this theme 
+* Size  : Larger creatures can eat smaller ones 
+* Speed : Faster creatures can reach food easier 
+* Sight : Creatures can see food and other creatures further away 
+
+![demo](https://github.com/MitchelPaulin/PopulationSimulator/blob/master/assets/demo/demo.gif)
+
+# Dependencies 
+* Python3 
+* PyQt5 
+* Matplotlib
+* qdarkstlye (optional) 
+* pip (optinal, makes installing python packages easier)
+
+You can get everything you need to run the program by executing 
+
+`install-dependencies.sh`
 
 # To Run 
-First install dependencies (install-dependencies.sh) 
+Ensure all dependencies are installed then simply run 
 
-python3 MainWindow.py 
+`python3 MainWindow.py` 
 
 # Thanks To 
+Thank you to the following creators for the images used in this application.
+
 InkMammoth https://opengameart.org/users/inkmammoth
 
 Bonsaiheldin http://bonsaiheld.org
