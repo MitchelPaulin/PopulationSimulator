@@ -20,13 +20,16 @@ class Creature(QGraphicsPixmapItem):
     CREATURE_STARTING_ENERGY = 5000
     # only run away if a creature is this close
     DANGER_ZONE = 100
+    # the amount of food a creature need to eat in order to reproduce
+    FULL = 2
 
-    speed = 2
+    speed = 1
     MIN_SPEED = 0.5
+    SPEED_MODIFIER = 2
 
     sight = 1
     MIN_SIGHT = 0.5
-    SIGHT_MODIFER = 200
+    SIGHT_MODIFIER = 200
 
     size = 1
     MIN_SIZE = 0.5
@@ -59,7 +62,7 @@ class Creature(QGraphicsPixmapItem):
 
     def moveTowardsObject(self, destObj, simulationView):
         """Moves this creature towards a given object"""
-        delta = movementDelta(self, destObj, self.speed)
+        delta = movementDelta(self, destObj, self.movementSpeed())
         newX = min(
             max(self.x() + delta[0], 0), simulationView.simWindow.width())
         newY = min(max(self.y() + delta[1], 0),
@@ -69,7 +72,8 @@ class Creature(QGraphicsPixmapItem):
 
     def moveAwayFromObject(self, otherObject, simulationView):
         """Move this creature awasy from a given object"""
-        delta = reverseVector2D(movementDelta(self, otherObject, self.speed))
+        delta = reverseVector2D(movementDelta(
+            self, otherObject, self.movementSpeed()))
         newX = min(max(self.x() + delta[0], 0),
                    simulationView.simWindow.width())
         newY = min(max(self.y() + delta[1], 0),
@@ -82,7 +86,9 @@ class Creature(QGraphicsPixmapItem):
         if not foodList or len(foodList) == 0:
             return None
 
-        closestFood = None
+        if self.closestFood:
+            return self.closestFood
+
         closestFoodDistance = maxsize
         for food in foodList:
             distance = objectDistance(self, food)
@@ -101,7 +107,7 @@ class Creature(QGraphicsPixmapItem):
     def findHostile(self, creatureList):
         """Run away from hostile creatures if they exist"""
         for otherCreature in creatureList:
-            if self.EAT_SIZE * self.size < otherCreature.size and otherCreature.isActive():
+            if otherCreature.size / self.size >= self.EAT_SIZE:
                 if closeEnough(self, otherCreature, min(self.seeingDistance(), self.DANGER_ZONE)):
                     return otherCreature
         return None
@@ -122,8 +128,18 @@ class Creature(QGraphicsPixmapItem):
 
     def seeingDistance(self):
         """Returns the distance a creature cant spot objects"""
-        return self.sight * self.SIGHT_MODIFER
+        return self.sight * self.SIGHT_MODIFIER
+
+    def movementSpeed(self):
+        """Returns the distance a creature can move"""
+        return self.speed * self.SPEED_MODIFIER
 
     def isActive(self):
         """returns whether or not this creature is currently active"""
-        return self.currentEnergy > 0 and self.eatenFood < 2
+        return not self.isOutOfEnergy() and not self.isFull()
+
+    def isOutOfEnergy(self):
+        return self.currentEnergy <= 0
+
+    def isFull(self):
+        return self.eatenFood >= self.FULL

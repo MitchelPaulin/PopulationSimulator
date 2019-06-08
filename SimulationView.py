@@ -20,6 +20,8 @@ class SimulationLoop():
     generation timing
     """
 
+    FRAMES_PER_SECOND = 30
+
     simulationView = None
     timer = None
     frames = 0
@@ -28,7 +30,7 @@ class SimulationLoop():
         self.simulationView = simulationView
         self.timer = QTimer()
         self.timer.timeout.connect(self.nextTimeStep)
-        self.timer.setInterval(1000/30)  # 30 Frames per second
+        self.timer.setInterval(1000/self.FRAMES_PER_SECOND)
 
     def nextTimeStep(self):
         self.nextFrame()
@@ -57,20 +59,24 @@ class SimulationLoop():
         for creature in self.simulationView.simulation.creatures:
 
             # creature is out of energy it cannot move
-            if creature.currentEnergy <= 0:
+            if creature.isOutOfEnergy():
                 continue
 
             # run away from larger creatures if they are too close
             hostile = creature.findHostile(
                 self.simulationView.simulation.creatures)
-            if hostile:
+            if hostile and hostile.isActive():
                 creature.moveAwayFromObject(hostile, self.simulationView)
                 creature.closestFood = None
                 continue
 
             # if the creature is full and safe continue
-            if creature.eatenFood >= 2:
+            if creature.isFull():
                 continue
+
+            # after 1 second reset the food
+            if self.frames % self.FRAMES_PER_SECOND:
+                creature.closestFood = None
 
             # try to find new food
             closestFood = self.findFood(creature)
@@ -122,9 +128,13 @@ class SimulationLoop():
 
 class SimulationView():
     """
-    Main driver class responsible for handling UI interactions 
+    Main driver class responsible for handling UI interactions
     and setting up,tearing down and reseting simulations.
     """
+
+    CENTER_OF_SIM = None
+    BUFFER = 20  # ensure we don't drop items too close to the extremes of the scene
+    FOOD_BUFFER = 25  # Don't let food spawn too close to the edges
 
     mainWindow = None
     graphicsScene = None
@@ -138,8 +148,6 @@ class SimulationView():
     beginSimulationButton = None
     cancelSimulationButton = None
     toggleSimulationButton = None
-    CENTER_OF_SIM = None
-    BUFFER = 20  # ensure we don't drop items too close to the extremes of the scene
 
     def __init__(self, mainWindow):
         self.mainWindow = mainWindow
@@ -176,12 +184,11 @@ class SimulationView():
 
     def createFood(self, foodAmount):
         """Draw the food items to the screen and create new food objects"""
-        FOOD_BUFFER = 25  # Don't let food spawn too close to the edges
         for _ in range(foodAmount):
             food_x = randint(
-                FOOD_BUFFER, self.graphicsScene.width() - FOOD_BUFFER)
+                self.FOOD_BUFFER, self.graphicsScene.width() - self.FOOD_BUFFER)
             food_y = randint(
-                FOOD_BUFFER, self.graphicsScene.height() - FOOD_BUFFER)
+                self.FOOD_BUFFER, self.graphicsScene.height() - self.FOOD_BUFFER)
             newFood = Food()
             self.simulation.addFood(newFood)
             self.graphicsScene.addItem(newFood)
@@ -250,7 +257,7 @@ class SimulationView():
 
     def deleteAssets(self):
         """
-        Go through the scene/objects and delete assets. 
+        Go through the scene/objects and delete assets.
         Normally you shouldn't have to do this but there seems to be an
         issue with the C++ bindings not causing the deconstructor to always
         run so we need to delete the assets outself
@@ -281,29 +288,25 @@ class SimulationView():
         self.isSimulating = False
         self.simulationStarted = False
 
-    def goToNextGeneration(self):
-        """Set the simulation back to a starting state
-           and deal with setting up next generation"""
-
-        if not self.simulation:
-            return
-
-        # delete all remaining food
-        foodList = list(self.simulation.food)
-        for food in foodList:
+    def cleanupFood(self):
+        """Delete all food from the scene"""
+        for food in list(self.simulation.food):
             self.simulation.food.remove(food)
             self.graphicsScene.removeItem(food)
 
-        self.createFood(self.mainWindow.food_slider.sliderPosition())
-        self.simulation.generation += 1
-        creatureList = list(self.simulation.creatures)
-        for creature in creatureList:
+    def resetCreatures(self):
+        """Reset creature state as well as deal 
+           with creature reproduction / survival"""
+
+        for creature in list(self.simulation.creatures):
+
             if creature.eatenFood >= 1:  # creature survived to next generation
                 newPos = self.randomPerimeterPosition()
                 creature.setPos(newPos[0], newPos[1])
-                if creature.eatenFood >= 2:  # create survived with enough food to reproduce
+                if creature.isFull():  # create survived with enough food to reproduce
                     offspring = Creature(creature, self.simulation)
                     self.drawCreature(offspring)
+
             else:  # creature did not find enough food
                 logging.info("Creature " + str(creature) + " has perished")
                 self.simulation.creatures.remove(creature)
@@ -312,6 +315,21 @@ class SimulationView():
 
             creature.resetState()
 
+    def goToNextGeneration(self):
+        """Set the simulation back to a starting state
+           and deal with setting up next generation"""
+
+        if not self.simulation:
+            return
+
+        self.cleanupFood()
+
+        self.createFood(self.mainWindow.food_slider.sliderPosition())
+
+        self.resetCreatures()
+
+        self.simulation.generation += 1
+
         # update the graph with the population attributes
         self.graphView.updateGraph()
 
@@ -319,6 +337,7 @@ class SimulationView():
             self.cancelSimulation()
             box = QMessageBox(self.mainWindow)
             box.setText("No creatures left")
+            box.setWindowTitle("")
             box.open()
         else:
             self.simulationLoop.start()
