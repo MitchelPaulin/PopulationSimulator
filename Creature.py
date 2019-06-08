@@ -3,7 +3,7 @@
 
 from PyQt5.QtWidgets import QGraphicsPixmapItem
 from PyQt5.QtGui import QPixmap
-from Util import objectDistance, movementDelta
+from Util import objectDistance, movementDelta, reverseVector2D, closeEnough
 from sys import maxsize
 from math import sqrt
 from random import uniform
@@ -16,7 +16,12 @@ class Creature(QGraphicsPixmapItem):
     Each creature can move, reproduce and mutate 
     """
 
-    speed = 1
+    # how far a creature can move before it needs to stop
+    CREATURE_STARTING_ENERGY = 5000
+    # only run away if a creature is this close
+    DANGER_ZONE = 100
+
+    speed = 2
     MIN_SPEED = 0.5
 
     sight = 1
@@ -29,8 +34,6 @@ class Creature(QGraphicsPixmapItem):
 
     eatenFood = 0
     closestFood = None
-    # how far a creature can move before it needs to stop
-    CREATURE_STARTING_ENERGY = 10000
     currentEnergy = CREATURE_STARTING_ENERGY
     MUTATION_RANGE = 0.5  # each attribute has a change to mutate up or down one on mutation
 
@@ -54,11 +57,25 @@ class Creature(QGraphicsPixmapItem):
         base = super().__str__()
         return base + ("(speed=%f size=%f sight=%f)" % (self.speed, self.size, self.sight))
 
-    def moveTowardsObject(self, destObj, simulation):
+    def moveTowardsObject(self, destObj, simulationView):
         """Moves this creature towards a given object"""
         delta = movementDelta(self, destObj, self.speed)
-        self.setPos(self.x() + delta[0], self.y() + delta[1])
-        self.expendEnergy(delta[0], delta[1], simulation)
+        newX = min(
+            max(self.x() + delta[0], 0), simulationView.simWindow.width())
+        newY = min(max(self.y() + delta[1], 0),
+                   simulationView.simWindow.height())
+        self.setPos(newX, newY)
+        self.expendEnergy(delta[0], delta[1], simulationView.simulation)
+
+    def moveAwayFromObject(self, otherObject, simulationView):
+        """Move this creature awasy from a given object"""
+        delta = reverseVector2D(movementDelta(self, otherObject, self.speed))
+        newX = min(max(self.x() + delta[0], 0),
+                   simulationView.simWindow.width())
+        newY = min(max(self.y() + delta[1], 0),
+                   simulationView.simWindow.height())
+        self.setPos(newX, newY)
+        self.expendEnergy(delta[0], delta[1], simulationView.simulation)
 
     def findClosestFood(self, foodList, creatureList):
         """Finds the closest food to this creature and returns it"""
@@ -81,6 +98,14 @@ class Creature(QGraphicsPixmapItem):
 
         return closestFood
 
+    def findHostile(self, creatureList):
+        """Run away from hostile creatures if they exist"""
+        for otherCreature in creatureList:
+            if self.EAT_SIZE * self.size < otherCreature.size and otherCreature.isActive():
+                if closeEnough(self, otherCreature, min(self.seeingDistance(), self.DANGER_ZONE)):
+                    return otherCreature
+        return None
+
     def expendEnergy(self, deltaX, deltaY, simulation):
         """Expend the amount of energy equal to the distance moved taking into account attributes"""
         self.currentEnergy -= pow(self.speed, 2)*pow(self.size, 3) + self.sight
@@ -98,3 +123,7 @@ class Creature(QGraphicsPixmapItem):
     def seeingDistance(self):
         """Returns the distance a creature cant spot objects"""
         return self.sight * self.SIGHT_MODIFER
+
+    def isActive(self):
+        """returns whether or not this creature is currently active"""
+        return self.currentEnergy > 0 and self.eatenFood < 2

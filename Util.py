@@ -36,3 +36,8 @@ def closeEnough(object1, object2, epsilon):
     if object1 and object2:
         return objectDistance(object1, object2) <= epsilon
     return False
+
+
+def reverseVector2D(vector):
+    """Takes in a 2-tuple and reverses the direction"""
+    return (vector[0] * -1, vector[1] * -1)

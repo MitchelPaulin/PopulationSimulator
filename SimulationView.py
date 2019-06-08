@@ -10,65 +10,93 @@ from Food import Food
 from Creature import Creature
 from Simulation import Simulation
 from Graph import Graph
-from Util import closeEnough, objectDistance
+from Util import closeEnough, objectDistance, reverseVector2D
 
 
 class SimulationLoop():
     """
-    A helper class for SimulationView which is responsible for 
-    rendering the main simulation loop of the actors and managing 
-    generation timing 
+    A helper class for SimulationView which is responsible for
+    rendering the main simulation loop of the actors and managing
+    generation timing
     """
 
     simulationView = None
     timer = None
+    frames = 0
 
     def __init__(self, simulationView):
         self.simulationView = simulationView
         self.timer = QTimer()
         self.timer.timeout.connect(self.nextTimeStep)
-        self.timer.setInterval(1000/60)  # 60 Frames per second
+        self.timer.setInterval(1000/30)  # 30 Frames per second
 
     def nextTimeStep(self):
         self.nextFrame()
         self.updateLcds()
 
+    def findFood(self, creature):
+        """See if the given creature can find food"""
+        if creature.closestFood in self.simulationView.graphicsScene.items():
+            return creature.closestFood
+
+        return creature.findClosestFood(
+            self.simulationView.simulation.food, [x for x in self.simulationView.simulation.creatures if x not in [creature]])
+
+    def removeItemFromSim(self, item):
+        self.simulationView.graphicsScene.removeItem(item)
+        if isinstance(item, Food):
+            self.simulationView.simulation.food.remove(item)
+        else:
+            self.simulationView.simulation.creatures.remove(
+                item)
+
     def nextFrame(self):
-        """Render one time step"""
+        """Render one time step of the simulation"""
+        self.frames += 1
         creatureMoved = False
         for creature in self.simulationView.simulation.creatures:
+
+            # creature is out of energy it cannot move
             if creature.currentEnergy <= 0:
                 continue
 
-            # avoid larger creatures
+            # run away from larger creatures if they are too close
+            hostile = creature.findHostile(
+                self.simulationView.simulation.creatures)
+            if hostile:
+                creature.moveAwayFromObject(hostile, self.simulationView)
+                creature.closestFood = None
+                continue
 
-            # try to find new food 
-            if not creature.closestFood or not creature.closestFood in self.simulationView.graphicsScene.items():
-                creature.closestFood = creature.findClosestFood(
-                    self.simulationView.simulation.food, [x for x in self.simulationView.simulation.creatures if x not in [creature]])
+            # if the creature is full and safe continue
+            if creature.eatenFood >= 2:
+                continue
 
-            closestFood = creature.closestFood
+            # try to find new food
+            closestFood = self.findFood(creature)
+            creature.closestFood = closestFood
 
-            if closestFood and objectDistance(creature, closestFood) < creature.seeingDistance():
+            if closestFood and not hostile and objectDistance(creature, closestFood) < creature.seeingDistance():
+
                 creature.moveTowardsObject(
-                    closestFood, self.simulationView.simulation)
+                    closestFood, self.simulationView)
+
+                # if creature could reach food in next time step
                 if closeEnough(creature, closestFood, creature.speed + self.simulationView.BUFFER):
-                    # if creature could reach food in next time step
                     creature.eat()
                     creature.closestFood = None
+                    self.removeItemFromSim(closestFood)
                     logging.info("I have been eaten " + str(closestFood))
-                    self.simulationView.graphicsScene.removeItem(closestFood)
-                    if isinstance(closestFood, Food):
-                        self.simulationView.simulation.food.remove(closestFood)
-                    else:
-                        self.simulationView.simulation.creatures.remove(
-                            closestFood)
+
                 creatureMoved = True
+
             elif not closeEnough(creature, self.simulationView.CENTER_OF_SIM, creature.speed):
                 # creature could not see food, move towards center
                 creature.moveTowardsObject(
-                    self.simulationView.CENTER_OF_SIM, self.simulationView.simulation)
+                    self.simulationView.CENTER_OF_SIM, self.simulationView)
                 creatureMoved = True
+
+        # No movement occured, end of generation
         if not creatureMoved:
             self.pause()
             self.nextGeneration()
@@ -258,7 +286,7 @@ class SimulationView():
            and deal with setting up next generation"""
 
         if not self.simulation:
-            return 
+            return
 
         # delete all remaining food
         foodList = list(self.simulation.food)
