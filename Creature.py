@@ -17,9 +17,9 @@ class Creature(QGraphicsPixmapItem):
     """
 
     # how far a creature can move before it needs to stop
-    CREATURE_STARTING_ENERGY = 5000
+    CREATURE_STARTING_ENERGY = 1500
     # only run away if a creature is this close
-    DANGER_ZONE = 100
+    DANGER_ZONE = 150
     # the amount of food a creature need to eat in order to reproduce
     FULL = 2
 
@@ -37,6 +37,7 @@ class Creature(QGraphicsPixmapItem):
 
     eatenFood = 0
     closestFood = None
+    hostile = None 
     currentEnergy = CREATURE_STARTING_ENERGY
     MUTATION_RANGE = 0.5  # each attribute has a change to mutate up or down one on mutation
 
@@ -58,7 +59,7 @@ class Creature(QGraphicsPixmapItem):
 
     def __str__(self):
         base = super().__str__()
-        return base + ("(speed=%f size=%f sight=%f)" % (self.speed, self.size, self.sight))
+        return base + ("(speed=%f size=%f sight=%f energy=%f food=%d)" % (self.speed, self.size, self.sight, self.currentEnergy, self.eatenFood))
 
     def moveTowardsObject(self, destObj, simulationView):
         """Moves this creature towards a given object"""
@@ -85,9 +86,6 @@ class Creature(QGraphicsPixmapItem):
         """Finds the closest food to this creature and returns it"""
         if not foodList or len(foodList) == 0:
             return None
-
-        if self.closestFood:
-            return self.closestFood
 
         closestFoodDistance = maxsize
         for food in foodList:
