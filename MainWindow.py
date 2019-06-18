@@ -9,6 +9,7 @@ from SimulationView import SimulationView
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import QFile
 from PyQt5.uic import loadUi
+from Util import FUNCTION_STRINGS
 
 
 class MainWindow(QMainWindow):
@@ -24,12 +25,11 @@ class MainWindow(QMainWindow):
 
     def populateCostComboBox(self):
         """Populate and set the initial values for the QComboBoxes"""
-        functions = ['1', 'n', 'n\u00B2', 'n\u00B3']
         speedComboBox = self.speed_cost_function_comboBox
         sightComboBox = self.sight_cost_function_comboBox
         sizeComboBox = self.size_cost_function_comboBox
 
-        for func in functions:
+        for func in FUNCTION_STRINGS:
             speedComboBox.addItem(func)
             sightComboBox.addItem(func)
             sizeComboBox.addItem(func)

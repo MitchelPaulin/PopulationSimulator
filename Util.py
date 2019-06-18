@@ -3,6 +3,7 @@
 
 from math import sqrt, pow
 
+FUNCTION_STRINGS = ['1', 'n', 'n\u00B2', 'n\u00B3']
 
 def objectDistance(object1, object2):
     """Returns the absolute Euclidean distance between two QObjects object1 and object2"""

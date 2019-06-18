@@ -37,7 +37,7 @@ class Creature(QGraphicsPixmapItem):
 
     eatenFood = 0
     closestFood = None
-    hostile = None 
+    hostile = None
     currentEnergy = CREATURE_STARTING_ENERGY
     MUTATION_RANGE = 0.5  # each attribute has a change to mutate up or down one on mutation
 
@@ -112,7 +112,10 @@ class Creature(QGraphicsPixmapItem):
 
     def expendEnergy(self, deltaX, deltaY, simulation):
         """Expend the amount of energy equal to the distance moved taking into account attributes"""
-        self.currentEnergy -= pow(self.speed, 2)*pow(self.size, 3) + self.sight
+        speedCost = pow(self.speed, simulation.speedCostExponent)
+        sizeCost = pow(self.size, simulation.sizeCostExponenet)
+        sightCost = pow(self.sight, simulation.sightCostExponenet)
+        self.currentEnergy -= speedCost*sizeCost + sightCost
 
     def eat(self):
         self.eatenFood += 1
