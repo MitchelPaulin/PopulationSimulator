@@ -60,7 +60,7 @@ class SimulationLoop():
 
             closestFood = None
 
-            # creature is out of energy it cannot move
+            # creature is out of energy, it cannot move
             if creature.isOutOfEnergy():
                 continue
 
@@ -77,7 +77,7 @@ class SimulationLoop():
                 logging.info(str(creature) + " running away from creature " + str(hostile))
                 continue
 
-            # if the creature is full and safe continue
+            # if the creature is full and safe, continue
             if creature.isFull():
                 continue
 
@@ -104,7 +104,7 @@ class SimulationLoop():
                     self.simulationView.CENTER_OF_SIM, self.simulationView)
                 creatureMoved = True
 
-        # No movement occured, end of generation
+        # no movement occurred, end of generation
         if not creatureMoved:
             self.pause()
             self.nextGeneration()
@@ -131,12 +131,12 @@ class SimulationLoop():
 class SimulationView():
     """
     Main driver class responsible for handling UI interactions
-    and setting up,tearing down and reseting simulations.
+    and setting up/tearing down and reseting simulations.
     """
 
     CENTER_OF_SIM = None
     BUFFER = 20  # ensure we don't drop items too close to the extremes of the scene
-    FOOD_BUFFER = 25  # Don't let food spawn too close to the edges
+    FOOD_BUFFER = 25  # don't let food spawn too close to the edges
 
     mainWindow = None
     graphicsScene = None
@@ -242,7 +242,7 @@ class SimulationView():
         self.simulationLoop.start()
 
     def toggleSimulation(self):
-        """Toggle whether or not we are current simulating"""
+        """Toggle whether or not we are currently simulating"""
         if not self.simulationStarted:
             return
 
@@ -261,8 +261,8 @@ class SimulationView():
         """
         Go through the scene/objects and delete assets.
         Normally you shouldn't have to do this but there seems to be an
-        issue with the C++ bindings not causing the deconstructor to always
-        run so we need to delete the assets outself
+        issue with the C++ bindings not causing the deconstructer to always
+        run, so we need to delete the assets ourself
         """
         if not self.simulation:
             return

@@ -74,7 +74,7 @@ class Graph(FigureCanvas):
         self.sightHistory = [1]
 
     def setSimulation(self, simulation):
-        """Set the simulation for instance of this graph"""
+        """Set the simulation for the instance of this graph"""
         self.simulation = simulation
 
     def createAxis(self):

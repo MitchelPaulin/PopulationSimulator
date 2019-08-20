@@ -10,7 +10,7 @@ class Food(QGraphicsPixmapItem):
     Food to be drawn to the simulation window 
     """
 
-    # tuple so editing cannot occur
+    # List of food images that can be spawned
     foodImages = ('Cherry.png', 'Watermelon.png', 'Pear.png')
 
     def __init__(self, image=None):

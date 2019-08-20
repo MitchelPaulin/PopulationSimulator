@@ -16,7 +16,7 @@ The creatures compete for food using their attributes to try and beat out the ot
 * PyQt5 
 * Matplotlib
 * qdarkstlye (optional) 
-* pip (optinal, makes installing python packages easier)
+* pip (optional, makes installing python packages easier)
 
 You can get everything you need to run the program by executing 
 

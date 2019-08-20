@@ -16,7 +16,7 @@ def objectDistance(object1, object2):
 
 
 def movementDelta(source, destination, distance):
-    """Returns the vector along which the source would need to move along a target in order to reach it's destination
+    """Returns the vector along which the source would need to move along in order to reach it's destination
        with the additional restriction of only moving distance """
     if not source or not destination:
         return (0, 0)

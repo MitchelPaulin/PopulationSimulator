@@ -50,7 +50,7 @@ if __name__ == "__main__":
 
     window = MainWindow()
 
-    # Create a new simulation
+    # create a new simulation
     simulationView = SimulationView(window)
 
     sys.exit(app.exec_())

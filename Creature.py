@@ -20,7 +20,7 @@ class Creature(QGraphicsPixmapItem):
     CREATURE_STARTING_ENERGY = 1500
     # only run away if a creature is this close
     DANGER_ZONE = 150
-    # the amount of food a creature need to eat in order to reproduce
+    # the amount of food a creature needs to eat in order to reproduce
     FULL = 2
 
     speed = 1
@@ -39,11 +39,10 @@ class Creature(QGraphicsPixmapItem):
     closestFood = None
     hostile = None
     currentEnergy = CREATURE_STARTING_ENERGY
-    MUTATION_RANGE = 0.5  # each attribute has a change to mutate up or down one on mutation
-
+    MUTATION_RANGE = 0.5  # each attribute has a change to mutate up or down by the mutation value 
     def __init__(self, parent=None, simulation=None):
         if parent:
-            # Create a new creature based on the parent allowing for natural mutations
+            # create a new creature based on the parent, allowing for natural mutations
             if simulation.enableSpeedMutation:
                 self.speed = max(uniform(parent.speed - self.MUTATION_RANGE,
                                          parent.speed + self.MUTATION_RANGE), self.MIN_SPEED)
@@ -72,7 +71,7 @@ class Creature(QGraphicsPixmapItem):
         self.expendEnergy(delta[0], delta[1], simulationView.simulation)
 
     def moveAwayFromObject(self, otherObject, simulationView):
-        """Move this creature awasy from a given object"""
+        """Move this creature away from a given object"""
         delta = reverseVector2D(movementDelta(
             self, otherObject, self.movementSpeed()))
         newX = min(max(self.x() + delta[0], 0),
@@ -128,7 +127,7 @@ class Creature(QGraphicsPixmapItem):
         self.closestFood = None
 
     def seeingDistance(self):
-        """Returns the distance a creature cant spot objects"""
+        """Returns the distance at which an object leaves a creatures view"""
         return self.sight * self.SIGHT_MODIFIER
 
     def movementSpeed(self):
@@ -136,7 +135,7 @@ class Creature(QGraphicsPixmapItem):
         return self.speed * self.SPEED_MODIFIER
 
     def isActive(self):
-        """returns whether or not this creature is currently active"""
+        """Returns whether or not this creature is currently active"""
         return not self.isOutOfEnergy() and not self.isFull()
 
     def isOutOfEnergy(self):
