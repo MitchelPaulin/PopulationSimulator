@@ -18,10 +18,6 @@ The creatures compete for food using their attributes to try and beat out the ot
 * qdarkstlye (optional) 
 * pip (optional, makes installing python packages easier)
 
-You can get everything you need to run the program by executing 
-
-`install-dependencies.sh`
-
 # To Run 
 Ensure all dependencies are installed then simply run 
 
