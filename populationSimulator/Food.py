@@ -7,7 +7,7 @@ import random
 
 class Food(QGraphicsPixmapItem):
     """
-    Food to be drawn to the simulation window 
+    Food to be drawn to the simulation window
     """
 
     # List of food images that can be spawned
@@ -15,6 +15,6 @@ class Food(QGraphicsPixmapItem):
 
     def __init__(self, image=None):
         if not image:
-            super().__init__(QPixmap('assets/'+random.choice(self.foodImages)))
+            super().__init__(QPixmap('../assets/'+random.choice(self.foodImages)))
         else:
             super().__init__QGraphicsPixmapItem(image)

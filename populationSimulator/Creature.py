@@ -39,7 +39,9 @@ class Creature(QGraphicsPixmapItem):
     closestFood = None
     hostile = None
     currentEnergy = CREATURE_STARTING_ENERGY
-    MUTATION_RANGE = 0.5  # each attribute has a change to mutate up or down by the mutation value 
+    # each attribute has a change to mutate up or down by the mutation value
+    MUTATION_RANGE = 0.5
+
     def __init__(self, parent=None, simulation=None):
         if parent:
             # create a new creature based on the parent, allowing for natural mutations
@@ -52,7 +54,7 @@ class Creature(QGraphicsPixmapItem):
             if simulation.enableSizeMutation:
                 self.size = max(uniform(parent.size - self.MUTATION_RANGE,
                                         parent.size + self.MUTATION_RANGE), self.MIN_SIZE)
-        super().__init__(QPixmap('assets/Slime.png'))
+        super().__init__(QPixmap('../assets/Slime.png'))
         logging.info("I have been born! " + str(self) +
                      " from parent " + str(parent))
 

@@ -87,10 +87,10 @@ class Graph(FigureCanvas):
 
         if self.simulation.enableSpeedMutation:
             self.ax.plot(1, 'w-', label="speed")
-        
+
         if self.simulation.enableSizeMutation:
             self.ax.plot(1, 'r-', label="size")
-        
+
         if self.simulation.enableSightMutation:
             self.ax.plot(1, 'c-', label="sight")
 

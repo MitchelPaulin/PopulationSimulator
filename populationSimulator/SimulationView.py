@@ -74,7 +74,8 @@ class SimulationLoop():
                 creature.moveAwayFromObject(hostile, self.simulationView)
                 creature.hostile = hostile
                 creature.closestFood = None
-                logging.info(str(creature) + " running away from creature " + str(hostile))
+                logging.info(str(creature) +
+                             " running away from creature " + str(hostile))
                 continue
 
             # if the creature is full and safe, continue
