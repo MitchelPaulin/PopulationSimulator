@@ -12,14 +12,11 @@ The creatures compete for food using their attributes to try and beat out the ot
 ![demo](https://github.com/MitchelPaulin/PopulationSimulator/blob/master/assets/demo/demo.gif)
 
 # Dependencies 
-* Python3 
 * PyQt5 
 * Matplotlib
-* qdarkstlye (optional) 
-* pip (optional, makes installing python packages easier)
+* qdarkstlye (recommended) 
 
 # To Run 
-Ensure all dependencies are installed then simply run 
 
 `python3 MainWindow.py` 
 
