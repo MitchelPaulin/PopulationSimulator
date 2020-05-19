@@ -17,7 +17,6 @@ class Graph(FigureCanvas):
     sizeHistory = []
     sightHistory = []
     ax = None
-    figure = None
     simulation = None
 
     def __init__(self, parent=None, width=5, height=4, dpi=100):

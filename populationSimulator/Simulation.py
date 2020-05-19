@@ -17,12 +17,6 @@ class Simulation:
     food = []
     creatures = []
     generation = 0
-    enableSizeMutation = False
-    enableSightMutation = False
-    enableSpeedMutation = False
-    speedCostExponent = 0
-    sightCostExponenet = 0
-    sizeCostExponenet = 0
 
     def __init__(self, mainWindow):
         self.enableSizeMutation = mainWindow.enable_size_mutation.isChecked()

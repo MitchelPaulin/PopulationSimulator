@@ -22,8 +22,6 @@ class SimulationLoop():
 
     FRAMES_PER_SECOND = 30
 
-    simulationView = None
-    timer = None
     frames = 0
 
     def __init__(self, simulationView):
@@ -139,11 +137,8 @@ class SimulationView():
     BUFFER = 20  # ensure we don't drop items too close to the extremes of the scene
     FOOD_BUFFER = 25  # don't let food spawn too close to the edges
 
-    mainWindow = None
     graphicsScene = None
-    simWindow = None
     simulation = None
-    graphView = None
     isSimulating = False
     simulationStarted = False
     paused = False
@@ -262,7 +257,7 @@ class SimulationView():
         """
         Go through the scene/objects and delete assets.
         Normally you shouldn't have to do this but there seems to be an
-        issue with the C++ bindings not causing the deconstructer to always
+        issue with the C++ bindings not causing the de constructor to always
         run, so we need to delete the assets ourself
         """
         if not self.simulation:
