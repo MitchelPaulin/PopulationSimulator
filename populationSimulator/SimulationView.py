@@ -5,15 +5,15 @@ from PyQt5.QtWidgets import QGraphicsScene, QMessageBox, QGraphicsPixmapItem
 from PyQt5.QtCore import QTimer
 from random import randint
 import logging
-import Simulation
-from Food import Food
-from Creature import Creature
-from Simulation import Simulation
-from Graph import Graph
-from Util import closeEnough, objectDistance, reverseVector2D
+
+from populationSimulator.Creature import Creature
+from populationSimulator.Food import Food
+from populationSimulator.Graph import Graph
+from populationSimulator.Simulation import Simulation
+from populationSimulator.Util import object_distance, close_enough
 
 
-class SimulationLoop():
+class SimulationLoop:
     """
     A helper class for SimulationView which is responsible for
     rendering the main simulation loop of the actors and managing
@@ -24,25 +24,26 @@ class SimulationLoop():
 
     frames = 0
 
-    def __init__(self, simulationView):
-        self.simulationView = simulationView
+    def __init__(self, simulation_view):
+        self.simulationView = simulation_view
         self.timer = QTimer()
-        self.timer.timeout.connect(self.nextTimeStep)
-        self.timer.setInterval(1000/self.FRAMES_PER_SECOND)
+        self.timer.timeout.connect(self.next_time_step)
+        self.timer.setInterval(1000 / self.FRAMES_PER_SECOND)
 
-    def nextTimeStep(self):
-        self.nextFrame()
-        self.updateLcds()
+    def next_time_step(self):
+        self.next_frame()
+        self.update_lcds()
 
-    def findFood(self, creature):
+    def find_food(self, creature):
         """See if the given creature can find food"""
-        if creature.closestFood in self.simulationView.graphicsScene.items():
-            return creature.closestFood
+        if creature.closest_food in self.simulationView.graphicsScene.items():
+            return creature.closest_food
 
-        return creature.findClosestFood(
-            self.simulationView.simulation.food, [x for x in self.simulationView.simulation.creatures if x not in [creature]])
+        return creature.find_closest_food(
+            self.simulationView.simulation.food,
+            [x for x in self.simulationView.simulation.creatures if x not in [creature]])
 
-    def removeItemFromSim(self, item):
+    def remove_item_from_sim(self, item):
         self.simulationView.graphicsScene.removeItem(item)
         if isinstance(item, Food):
             self.simulationView.simulation.food.remove(item)
@@ -50,75 +51,73 @@ class SimulationLoop():
             self.simulationView.simulation.creatures.remove(
                 item)
 
-    def nextFrame(self):
+    def next_frame(self):
         """Render one time step of the simulation"""
         self.frames += 1
-        creatureMoved = False
+        creature_moved = False
         for creature in self.simulationView.simulation.creatures:
 
-            closestFood = None
-
             # creature is out of energy, it cannot move
-            if creature.isOutOfEnergy():
+            if creature.is_out_of_energy():
                 continue
 
             # run away from larger creatures if they are too close
             if self.frames % self.FRAMES_PER_SECOND / 4 == 0:
-                creature.hostile = creature.findHostile(
+                creature.hostile = creature.find_hostile(
                     self.simulationView.simulation.creatures)
 
             hostile = creature.hostile
             if hostile and hostile.isActive():
-                creature.moveAwayFromObject(hostile, self.simulationView)
+                creature.move_away_from_object(hostile, self.simulationView)
                 creature.hostile = hostile
-                creature.closestFood = None
+                creature.closest_food = None
                 logging.info(str(creature) +
                              " running away from creature " + str(hostile))
                 continue
 
             # if the creature is full and safe, continue
-            if creature.isFull():
+            if creature.is_full():
                 continue
 
-            closestFood = self.findFood(creature)
-            creature.closestFood = closestFood
+            closest_food = self.find_food(creature)
+            creature.closest_food = closest_food
 
-            if closestFood and objectDistance(creature, closestFood) < creature.seeingDistance():
+            if closest_food and object_distance(creature, closest_food) < creature.seeing_distance():
 
-                creature.moveTowardsObject(
-                    closestFood, self.simulationView)
+                creature.move_towards_object(
+                    closest_food, self.simulationView)
 
                 # if creature could reach food in next time step
-                if closeEnough(creature, closestFood, creature.movementSpeed() + self.simulationView.BUFFER):
+                if close_enough(creature, closest_food, creature.movement_speed() + self.simulationView.BUFFER):
                     creature.eat()
-                    creature.closestFood = None
-                    self.removeItemFromSim(closestFood)
-                    logging.info("I have been eaten " + str(closestFood))
+                    creature.closest_food = None
+                    self.remove_item_from_sim(closest_food)
+                    logging.info("I have been eaten " + str(closest_food))
 
-                creatureMoved = True
+                creature_moved = True
 
-            elif not closeEnough(creature, self.simulationView.CENTER_OF_SIM, creature.movementSpeed()):
+            elif not close_enough(creature, self.simulationView.CENTER_OF_SIM, creature.movement_speed()):
                 # creature could not see food, move towards center
-                creature.moveTowardsObject(
+                creature.move_towards_object(
                     self.simulationView.CENTER_OF_SIM, self.simulationView)
-                creatureMoved = True
+                creature_moved = True
 
         # no movement occurred, end of generation
-        if not creatureMoved:
+        if not creature_moved:
             self.pause()
-            self.nextGeneration()
+            self.next_generation()
 
-    def updateLcds(self):
+    def update_lcds(self):
         """Update the LCD displays in the scene"""
         self.simulationView.mainWindow.generation_number_display.display(
             self.simulationView.simulation.generation)
         self.simulationView.mainWindow.creature_number_display.display(
-            self.simulationView.simulation.populationSize())
+            self.simulationView.simulation.population_size())
 
-    def nextGeneration(self):
+    def next_generation(self):
         logging.info("This generation had ended ")
         self.pause()
-        self.simulationView.goToNextGeneration()
+        self.simulationView.go_to_next_generation()
 
     def start(self):
         self.timer.start()
@@ -127,7 +126,7 @@ class SimulationLoop():
         self.timer.stop()
 
 
-class SimulationView():
+class SimulationView:
     """
     Main driver class responsible for handling UI interactions
     and setting up/tearing down and reseting simulations.
@@ -137,37 +136,37 @@ class SimulationView():
     BUFFER = 20  # ensure we don't drop items too close to the extremes of the scene
     FOOD_BUFFER = 25  # don't let food spawn too close to the edges
 
-    graphicsScene = None
-    simulation = None
-    isSimulating = False
-    simulationStarted = False
-    paused = False
-    simulationLoop = None
-    beginSimulationButton = None
-    cancelSimulationButton = None
-    toggleSimulationButton = None
+    def __init__(self, main_window):
+        self.mainWindow = main_window
 
-    def __init__(self, mainWindow):
-        self.mainWindow = mainWindow
+        self.simWindow = main_window.simulation_window
 
-        self.simWindow = mainWindow.simulation_window
-
-        self.connectInputsToFunctions(self.mainWindow)
+        self.connect_inputs_to_functions(self.mainWindow)
 
         self.graphView = Graph(self.mainWindow.graph_container)
 
-    def connectInputsToFunctions(self, mainWindow):
+        self.graphicsScene = None
+        self.simulation = None
+        self.isSimulating = False
+        self.simulationStarted = False
+        self.paused = False
+        self.simulationLoop = None
+        self.beginSimulationButton = None
+        self.cancelSimulationButton = None
+        self.toggleSimulationButton = None
+
+    def connect_inputs_to_functions(self, main_window):
         """Connect all user inputs to functions"""
-        self.beginSimulationButton = mainWindow.begin_simulation_button
+        self.beginSimulationButton = main_window.begin_simulation_button
         self.beginSimulationButton.clicked.connect(self.simulate)
 
-        self.cancelSimulationButton = mainWindow.cancel_simulation_button
-        self.cancelSimulationButton.clicked.connect(self.cancelSimulation)
+        self.cancelSimulationButton = main_window.cancel_simulation_button
+        self.cancelSimulationButton.clicked.connect(self.cancel_simulation)
 
-        self.toggleSimulationButton = mainWindow.toggle_simulation_button
-        self.toggleSimulationButton.clicked.connect(self.toggleSimulation)
+        self.toggleSimulationButton = main_window.toggle_simulation_button
+        self.toggleSimulationButton.clicked.connect(self.toggle_simulation)
 
-    def createGraphicsScene(self):
+    def create_graphics_scene(self):
         """Create new graphics scene inside the graphics view and set size"""
         self.graphicsScene = QGraphicsScene()
         self.graphicsScene.setSceneRect(self.simWindow.x(), self.simWindow.y(
@@ -180,64 +179,66 @@ class SimulationView():
             self.simWindow.width() / 2, self.simWindow.height() / 2)
         self.graphicsScene.addItem(self.CENTER_OF_SIM)
 
-    def createFood(self, foodAmount):
+    def create_food(self, food_amount):
         """Draw the food items to the screen and create new food objects"""
-        for _ in range(foodAmount):
+        for _ in range(food_amount):
             food_x = randint(
                 self.FOOD_BUFFER, self.graphicsScene.width() - self.FOOD_BUFFER)
             food_y = randint(
                 self.FOOD_BUFFER, self.graphicsScene.height() - self.FOOD_BUFFER)
-            newFood = Food()
-            self.simulation.addFood(newFood)
-            self.graphicsScene.addItem(newFood)
-            newFood.setPos(food_x, food_y)
+            new_food = Food()
+            self.simulation.add_food(new_food)
+            self.graphicsScene.addItem(new_food)
+            new_food.setPos(food_x, food_y)
 
-    def randomPerimeterPosition(self):
+    def random_perimeter_position(self):
         """Retrun an (x,y) position along the perimeter of the scene.
            Helpful when drawing creatures"""
         direction = randint(1, 4)
         if direction == 1:  # North
-            return (randint(self.BUFFER, self.graphicsScene.width() - self.BUFFER) - self.BUFFER, self.graphicsScene.height() - self.BUFFER)
+            return (randint(self.BUFFER, self.graphicsScene.width() - self.BUFFER) - self.BUFFER,
+                    self.graphicsScene.height() - self.BUFFER)
         if direction == 2:  # East
-            return (self.graphicsScene.width() - self.BUFFER, randint(self.BUFFER, self.graphicsScene.height() - self.BUFFER) - self.BUFFER)
+            return (self.graphicsScene.width() - self.BUFFER,
+                    randint(self.BUFFER, self.graphicsScene.height() - self.BUFFER) - self.BUFFER)
         if direction == 3:  # South
-            return(randint(self.BUFFER, self.graphicsScene.width() - self.BUFFER) - self.BUFFER, 0)
+            return randint(self.BUFFER, self.graphicsScene.width() - self.BUFFER) - self.BUFFER, 0
         else:  # West
-            return(0, randint(self.BUFFER, self.graphicsScene.height() - self.BUFFER) - self.BUFFER)
+            return 0, randint(self.BUFFER, self.graphicsScene.height() - self.BUFFER) - self.BUFFER
 
-    def drawCreature(self, creature):
+    def draw_creature(self, creature):
         """Draw an instance of a creature to the screen"""
-        newPos = self.randomPerimeterPosition()
-        self.simulation.addCreature(creature)
+        new_pos = self.random_perimeter_position()
+        self.simulation.add_creature(creature)
         self.graphicsScene.addItem(creature)
-        creature.setPos(newPos[0], newPos[1])
+        creature.setPos(new_pos[0], new_pos[1])
 
-    def createCreatures(self, creatureAmount=10):
+    def create_creatures(self, creature_amount=10):
         """Draw the creature items to the screen and create new creature objects"""
-        for _ in range(creatureAmount):
-            newCreature = Creature()
-            self.drawCreature(newCreature)
+        for _ in range(creature_amount):
+            new_creature = Creature()
+            self.draw_creature(new_creature)
 
     def simulate(self):
         """Call the correct function based on the simulation state"""
         if self.isSimulating or self.paused:
-            self.cancelSimulation()
+            self.cancel_simulation()
         self.start()
         self.isSimulating = True
         self.simulationStarted = True
 
     def start(self):
         """Start the simulation"""
-        self.createGraphicsScene()
+        self.create_graphics_scene()
         self.simulation = Simulation(self.mainWindow)
         self.simulationLoop = SimulationLoop(self)
-        self.createFood(self.mainWindow.food_slider.sliderPosition())
-        self.createCreatures()
-        self.graphView.setSimulation(self.simulation)
-        self.graphView.createAxis()
+        self.create_food(self.mainWindow.food_slider.sliderPosition())
+        self.create_creatures()
+        self.graphView.set_simulation(self.simulation)
+        self.graphView.create_axis()
         self.simulationLoop.start()
 
-    def toggleSimulation(self):
+    def toggle_simulation(self):
         """Toggle whether or not we are currently simulating"""
         if not self.simulationStarted:
             return
@@ -253,7 +254,7 @@ class SimulationView():
 
         self.isSimulating = not self.isSimulating
 
-    def deleteAssets(self):
+    def delete_assets(self):
         """
         Go through the scene/objects and delete assets.
         Normally you shouldn't have to do this but there seems to be an
@@ -263,47 +264,47 @@ class SimulationView():
         if not self.simulation:
             return
 
-        foodList = list(self.simulation.food)
-        for food in foodList:
+        food_list = list(self.simulation.food)
+        for food in food_list:
             self.simulation.food.remove(food)
 
-        creatureList = list(self.simulation.creatures)
-        for creature in creatureList:
+        creature_list = list(self.simulation.creatures)
+        for creature in creature_list:
             self.simulation.creatures.remove(creature)
 
-        itemsToRemove = list(self.graphicsScene.items())
-        for item in itemsToRemove:
+        items_to_remove = list(self.graphicsScene.items())
+        for item in items_to_remove:
             self.graphicsScene.removeItem(item)
 
-    def cancelSimulation(self):
+    def cancel_simulation(self):
         """Clear the simulation scene and reset variables"""
         if self.simulationLoop:
             self.simulationLoop.pause()
         if self.graphView:
-            self.graphView.resetGraph()
+            self.graphView.reset_graph()
 
-        self.deleteAssets()
+        self.delete_assets()
         self.isSimulating = False
         self.simulationStarted = False
 
-    def cleanupFood(self):
+    def cleanup_food(self):
         """Delete all food from the scene"""
         for food in list(self.simulation.food):
             self.simulation.food.remove(food)
             self.graphicsScene.removeItem(food)
 
-    def resetCreatures(self):
+    def reset_creatures(self):
         """Reset creature state as well as deal 
            with creature reproduction / survival"""
 
         for creature in list(self.simulation.creatures):
 
-            if creature.eatenFood >= 1:  # creature survived to next generation
-                newPos = self.randomPerimeterPosition()
-                creature.setPos(newPos[0], newPos[1])
-                if creature.isFull():  # create survived with enough food to reproduce
+            if creature.eaten_food >= 1:  # creature survived to next generation
+                new_pos = self.random_perimeter_position()
+                creature.setPos(new_pos[0], new_pos[1])
+                if creature.is_full():  # create survived with enough food to reproduce
                     offspring = Creature(creature, self.simulation)
-                    self.drawCreature(offspring)
+                    self.draw_creature(offspring)
 
             else:  # creature did not find enough food
                 logging.info("Creature " + str(creature) + " has perished")
@@ -311,28 +312,28 @@ class SimulationView():
                 self.graphicsScene.removeItem(creature)
                 continue
 
-            creature.resetState()
+            creature.reset_state()
 
-    def goToNextGeneration(self):
+    def go_to_next_generation(self):
         """Set the simulation back to a starting state
            and deal with setting up next generation"""
 
         if not self.simulation:
             return
 
-        self.cleanupFood()
+        self.cleanup_food()
 
-        self.createFood(self.mainWindow.food_slider.sliderPosition())
+        self.create_food(self.mainWindow.food_slider.sliderPosition())
 
-        self.resetCreatures()
+        self.reset_creatures()
 
         self.simulation.generation += 1
 
         # update the graph with the population attributes
-        self.graphView.updateGraph()
+        self.graphView.update_graph()
 
         if len(self.simulation.creatures) == 0:
-            self.cancelSimulation()
+            self.cancel_simulation()
             box = QMessageBox(self.mainWindow)
             box.setText("No creatures left")
             box.setWindowTitle("")

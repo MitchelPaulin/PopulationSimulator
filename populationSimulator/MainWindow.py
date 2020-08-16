@@ -5,11 +5,11 @@
 import sys
 import logging
 import qdarkstyle
-from SimulationView import SimulationView
 from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5.QtCore import QFile
 from PyQt5.uic import loadUi
-from Util import FUNCTION_STRINGS
+
+from populationSimulator.SimulationView import SimulationView
+from populationSimulator.Util import FUNCTION_STRINGS
 
 
 class MainWindow(QMainWindow):
@@ -20,24 +20,24 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         loadUi("../assets/mainwindow.ui", self)
-        self.populateCostComboBox()
+        self.populate_cost_combo_box()
         self.show()
 
-    def populateCostComboBox(self):
+    def populate_cost_combo_box(self):
         """Populate and set the initial values for the QComboBoxes"""
-        speedComboBox = self.speed_cost_function_comboBox
-        sightComboBox = self.sight_cost_function_comboBox
-        sizeComboBox = self.size_cost_function_comboBox
+        speed_combo_box = self.speed_cost_function_comboBox
+        sight_combo_box = self.sight_cost_function_comboBox
+        size_combo_box = self.size_cost_function_comboBox
 
         for func in FUNCTION_STRINGS:
-            speedComboBox.addItem(func)
-            sightComboBox.addItem(func)
-            sizeComboBox.addItem(func)
+            speed_combo_box.addItem(func)
+            sight_combo_box.addItem(func)
+            size_combo_box.addItem(func)
 
         # recommended default starting values
-        speedComboBox.setCurrentIndex(2)
-        sightComboBox.setCurrentIndex(1)
-        sizeComboBox.setCurrentIndex(3)
+        speed_combo_box.setCurrentIndex(2)
+        sight_combo_box.setCurrentIndex(1)
+        size_combo_box.setCurrentIndex(3)
 
 
 if __name__ == "__main__":

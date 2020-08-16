@@ -1,9 +1,6 @@
 # File Simulation.py
 # Holds all the information about a particular instance of a simulation
-
-import Food
-import Creature
-from Util import FUNCTION_STRINGS
+from populationSimulator.Util import FUNCTION_STRINGS
 
 
 class Simulation:
@@ -11,29 +8,29 @@ class Simulation:
     Holds information about a current instance of a simulation this includes 
     actors and instance variables.
     In theory an entire simulation can be recreated from this instance which 
-    makes it useful for data analyzation.
+    makes it useful for data analyzing.
     """
 
-    food = []
-    creatures = []
-    generation = 0
-
-    def __init__(self, mainWindow):
-        self.enableSizeMutation = mainWindow.enable_size_mutation.isChecked()
-        self.enableSightMutation = mainWindow.enable_sight_mutation.isChecked()
-        self.enableSpeedMutation = mainWindow.enable_speed_mutation.isChecked()
+    def __init__(self, main_window):
+        self.enableSizeMutation = main_window.enable_size_mutation.isChecked()
+        self.enableSightMutation = main_window.enable_sight_mutation.isChecked()
+        self.enableSpeedMutation = main_window.enable_speed_mutation.isChecked()
         self.speedCostExponent = FUNCTION_STRINGS.index(
-            mainWindow.speed_cost_function_comboBox.currentText())
-        self.sightCostExponenet = FUNCTION_STRINGS.index(
-            mainWindow.sight_cost_function_comboBox.currentText())
-        self.sizeCostExponenet = FUNCTION_STRINGS.index(
-            mainWindow.size_cost_function_comboBox.currentText())
+            main_window.speed_cost_function_comboBox.currentText())
+        self.sightCostExponent = FUNCTION_STRINGS.index(
+            main_window.sight_cost_function_comboBox.currentText())
+        self.sizeCostExponent = FUNCTION_STRINGS.index(
+            main_window.size_cost_function_comboBox.currentText())
 
-    def addFood(self, food):
+        self.food = []
+        self.creatures = []
+        self.generation = 0
+
+    def add_food(self, food):
         self.food.append(food)
 
-    def addCreature(self, creature):
+    def add_creature(self, creature):
         self.creatures.append(creature)
 
-    def populationSize(self):
+    def population_size(self):
         return len(self.creatures)

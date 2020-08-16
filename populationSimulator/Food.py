@@ -11,10 +11,10 @@ class Food(QGraphicsPixmapItem):
     """
 
     # List of food images that can be spawned
-    foodImages = ('Cherry.png', 'Watermelon.png', 'Pear.png')
+    FOOD_IMAGES = ('Cherry.png', 'Watermelon.png', 'Pear.png')
 
     def __init__(self, image=None):
         if not image:
-            super().__init__(QPixmap('../assets/'+random.choice(self.foodImages)))
+            super().__init__(QPixmap('../assets/' + random.choice(self.FOOD_IMAGES)))
         else:
             super().__init__QGraphicsPixmapItem(image)

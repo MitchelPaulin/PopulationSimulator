@@ -3,9 +3,8 @@
 
 from PyQt5.QtWidgets import QGraphicsPixmapItem
 from PyQt5.QtGui import QPixmap
-from Util import objectDistance, movementDelta, reverseVector2D, closeEnough
+from populationSimulator.Util import object_distance, movement_delta, reverse_vector_2d, close_enough
 from sys import maxsize
-from math import sqrt
 from random import uniform
 import logging
 
@@ -22,27 +21,26 @@ class Creature(QGraphicsPixmapItem):
     DANGER_ZONE = 150
     # the amount of food a creature needs to eat in order to reproduce
     FULL = 2
-
-    speed = 1
-    MIN_SPEED = 0.5
-    SPEED_MODIFIER = 2
-
-    sight = 1
-    MIN_SIGHT = 0.5
-    SIGHT_MODIFIER = 200
-
-    size = 1
-    MIN_SIZE = 0.5
-    EAT_SIZE = 1.2  # creature must be 20% larger than another creature to eat it
-
-    eatenFood = 0
-    closestFood = None
-    hostile = None
-    currentEnergy = CREATURE_STARTING_ENERGY
     # each attribute has a change to mutate up or down by the mutation value
     MUTATION_RANGE = 0.5
 
+    MIN_SPEED = 0.5
+    SPEED_MODIFIER = 2
+
+    MIN_SIGHT = 0.5
+    SIGHT_MODIFIER = 200
+
+    MIN_SIZE = 0.5
+    EAT_SIZE = 1.2  # creature must be 20% larger than another creature to eat it
+
     def __init__(self, parent=None, simulation=None):
+        self.size = 1
+        self.sight = 1
+        self.speed = 1
+        self.eaten_food = 0
+        self.closest_food = None
+        self.hostile = None
+        self.current_energy = Creature.CREATURE_STARTING_ENERGY
         if parent:
             # create a new creature based on the parent, allowing for natural mutations
             if simulation.enableSpeedMutation:
@@ -60,88 +58,90 @@ class Creature(QGraphicsPixmapItem):
 
     def __str__(self):
         base = super().__str__()
-        return base + ("(speed=%f size=%f sight=%f energy=%f food=%d)" % (self.speed, self.size, self.sight, self.currentEnergy, self.eatenFood))
+        return base + ("(speed=%f size=%f sight=%f energy=%f food=%d)" % (
+            self.speed, self.size, self.sight, self.current_energy, self.eaten_food))
 
-    def moveTowardsObject(self, destObj, simulationView):
+    def move_towards_object(self, dest_obj, simulation_view):
         """Moves this creature towards a given object"""
-        delta = movementDelta(self, destObj, self.movementSpeed())
-        newX = min(
-            max(self.x() + delta[0], 0), simulationView.simWindow.width())
-        newY = min(max(self.y() + delta[1], 0),
-                   simulationView.simWindow.height())
-        self.setPos(newX, newY)
-        self.expendEnergy(delta[0], delta[1], simulationView.simulation)
+        delta = movement_delta(self, dest_obj, self.movement_speed())
+        new_x = min(
+            max(self.x() + delta[0], 0), simulation_view.simWindow.width())
+        new_y = min(max(self.y() + delta[1], 0),
+                    simulation_view.simWindow.height())
+        self.setPos(new_x, new_y)
+        self.expend_energy(simulation_view.simulation)
 
-    def moveAwayFromObject(self, otherObject, simulationView):
+    def move_away_from_object(self, other_object, simulation_view):
         """Move this creature away from a given object"""
-        delta = reverseVector2D(movementDelta(
-            self, otherObject, self.movementSpeed()))
-        newX = min(max(self.x() + delta[0], 0),
-                   simulationView.simWindow.width())
-        newY = min(max(self.y() + delta[1], 0),
-                   simulationView.simWindow.height())
-        self.setPos(newX, newY)
-        self.expendEnergy(delta[0], delta[1], simulationView.simulation)
+        delta = reverse_vector_2d(movement_delta(
+            self, other_object, self.movement_speed()))
+        new_x = min(max(self.x() + delta[0], 0),
+                    simulation_view.simWindow.width())
+        new_y = min(max(self.y() + delta[1], 0),
+                    simulation_view.simWindow.height())
+        self.setPos(new_x, new_y)
+        self.expend_energy(simulation_view.simulation)
 
-    def findClosestFood(self, foodList, creatureList):
+    def find_closest_food(self, food_list, creature_list):
         """Finds the closest food to this creature and returns it"""
-        if not foodList or len(foodList) == 0:
+        if not food_list or len(food_list) == 0:
             return None
 
-        closestFoodDistance = maxsize
-        for food in foodList:
-            distance = objectDistance(self, food)
-            if closestFoodDistance > distance:
-                closestFood = food
-                closestFoodDistance = distance
+        closest_food_distance = maxsize
+        closest_food = None
+        for food in food_list:
+            distance = object_distance(self, food)
+            if closest_food_distance > distance:
+                closest_food = food
+                closest_food_distance = distance
 
-        for creature in creatureList:
-            distance = objectDistance(self, creature)
-            if closestFoodDistance > distance and self.size / creature.size >= self.EAT_SIZE:
-                closestFood = creature
-                closestFoodDistance = distance
+        for creature in creature_list:
+            distance = object_distance(self, creature)
+            if closest_food_distance > distance and self.size / creature.size >= self.EAT_SIZE:
+                closest_food = creature
+                closest_food_distance = distance
 
-        return closestFood
+        return closest_food
 
-    def findHostile(self, creatureList):
+    def find_hostile(self, creature_list):
         """Run away from hostile creatures if they exist"""
-        for otherCreature in creatureList:
+        for otherCreature in creature_list:
             if otherCreature.size / self.size >= self.EAT_SIZE:
-                if closeEnough(self, otherCreature, min(self.seeingDistance(), self.DANGER_ZONE)):
+                if close_enough(self, otherCreature, min(self.seeing_distance(), self.DANGER_ZONE)):
                     return otherCreature
         return None
 
-    def expendEnergy(self, deltaX, deltaY, simulation):
+    def expend_energy(self, simulation):
         """Expend the amount of energy equal to the distance moved taking into account attributes"""
-        speedCost = pow(self.speed, simulation.speedCostExponent)
-        sizeCost = pow(self.size, simulation.sizeCostExponenet)
-        sightCost = pow(self.sight, simulation.sightCostExponenet)
-        self.currentEnergy -= speedCost*sizeCost + sightCost
+        speed_cost = pow(self.speed, simulation.speedCostExponent)
+        size_cost = pow(self.size, simulation.sizeCostExponent)
+        sight_cost = pow(self.sight, simulation.sightCostExponent)
+        self.current_energy -= speed_cost * size_cost + sight_cost
 
     def eat(self):
-        self.eatenFood += 1
-        logging.info("I have eaten " + str(self.eatenFood) + " " + str(self))
+        self.eaten_food += 1
+        logging.info("I have eaten " + str(self.eaten_food) + " " + str(self))
 
-    def resetState(self):
+    def reset_state(self):
         """Set a creature back to its starting state"""
-        self.eatenFood = 0
-        self.currentEnergy = self.CREATURE_STARTING_ENERGY
-        self.closestFood = None
+        self.eaten_food = 0
+        self.current_energy = self.CREATURE_STARTING_ENERGY
+        self.closest_food = None
 
-    def seeingDistance(self):
+    def seeing_distance(self):
         """Returns the distance at which an object leaves a creatures view"""
         return self.sight * self.SIGHT_MODIFIER
 
-    def movementSpeed(self):
+    def movement_speed(self):
         """Returns the distance a creature can move"""
         return self.speed * self.SPEED_MODIFIER
 
     def isActive(self):
         """Returns whether or not this creature is currently active"""
-        return not self.isOutOfEnergy() and not self.isFull()
+        return not self.is_out_of_energy() and not self.is_full()
 
-    def isOutOfEnergy(self):
-        return self.currentEnergy <= 0
+    def is_out_of_energy(self):
+        return self.current_energy <= 0
 
-    def isFull(self):
-        return self.eatenFood >= self.FULL
+    def is_full(self):
+        return self.eaten_food >= self.FULL
